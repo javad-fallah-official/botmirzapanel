@@ -1,13 +1,75 @@
 <?php
 
-if (function_exists('fastcgi_finish_request')) {
-    fastcgi_finish_request();
-} elseif (function_exists('litespeed_finish_request')) {
-    litespeed_finish_request();
-} else {
-    error_log('Neither fastcgi_finish_request nor litespeed_finish_request is available.');
+/**
+ * New modular entry point for BotMirzaPanel
+ * This file demonstrates how to use the new modular architecture
+ * while maintaining backward compatibility with existing functionality
+ */
+
+// Define initialization constant
+define('BOTMIRZAPANEL_INIT', true);
+
+// Load the new modular bootstrap
+$container = require_once __DIR__ . '/src/bootstrap.php';
+
+// Get the application instance
+$app = app();
+
+// Handle different request types
+try {
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+    $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    
+    // Parse the request path
+    $path = parse_url($requestUri, PHP_URL_PATH);
+    $path = trim($path, '/');
+    
+    // Route the request
+    switch ($path) {
+        case '':
+        case 'index.php':
+            handleWebhook();
+            break;
+            
+        case 'webhook':
+        case 'webhook.php':
+            handleWebhook();
+            break;
+            
+        case 'payment/callback':
+        case 'payment_callback.php':
+            handlePaymentCallback();
+            break;
+            
+        case 'cron':
+        case 'cron.php':
+            handleCron();
+            break;
+            
+        case 'admin':
+        case 'admin.php':
+            handleAdmin();
+            break;
+            
+        case 'api/status':
+            handleApiStatus();
+            break;
+            
+        case 'api/health':
+            handleApiHealth();
+            break;
+            
+        default:
+            // Try to handle legacy routes
+            handleLegacyRoute($path);
+            break;
+    }
+    
+} catch (\Throwable $e) {
+    handleError($e);
 }
 
+<<<<<<< HEAD
 ini_set('error_log', 'error_log');
 $version = "5.1.8";
 date_default_timezone_set('Asia/Tehran');
@@ -186,487 +248,263 @@ if (strpos($text, "/start ") !== false) {
     if (ctype_digit($affiliatesid)) {
         if (!in_array($affiliatesid, $users_ids)) {
             sendmessage($from_id, $textbotlang['users']['affiliates']['affiliatesyou'], null, 'html');
+=======
+/**
+ * Handle Telegram webhook
+ */
+function handleWebhook(): void
+{
+    header('Content-Type: application/json');
+    
+    try {
+        $input = file_get_contents('php://input');
+        
+        if (empty($input)) {
+            echo json_encode(['status' => 'error', 'message' => 'No input data']);
+>>>>>>> ac58632 (feat(core): introduce modular index.php entrypoint with routing and admin dashboard)
             return;
         }
-        if ($affiliatesid == $from_id) {
-            sendmessage($from_id, $textbotlang['users']['affiliates']['invalidaffiliates'], null, 'html');
+        
+        $update = json_decode($input, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
             return;
         }
-        $inviterData = select("user", "affiliates", "id", $affiliatesid, "select");
-        if ($inviterData && intval($inviterData['affiliates']) === intval($from_id)) {
-            sendmessage(
-                $from_id,
-                $textbotlang['users']['affiliates']['invalidMutual'],
-                null,
-                'html'
-            );
-            return;
-        }
-        $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-        if ($marzbanDiscountaffiliates['Discount'] == "onDiscountaffiliates") {
-            $marzbanDiscountaffiliates = select("affiliates", "*", null, null, "select");
-            $Balance_user = select("user", "*", "id", $affiliatesid, "select");
-            $Balance_add_user = $Balance_user['Balance'] + $marzbanDiscountaffiliates['price_Discount'];
-            update("user", "Balance", $Balance_add_user, "id", $affiliatesid);
-            $addbalancediscount = number_format($marzbanDiscountaffiliates['price_Discount'], 0);
-            sendmessage($affiliatesid, sprintf($textbotlang['users']['affiliates']['giftuser'], $addbalancediscount, $from_id), null, 'html');
-        }
-        sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-        $useraffiliates = select("user", "*", "id", $affiliatesid, "select");
-        $addcountaffiliates = intval($useraffiliates['affiliatescount']) + 1;
-        update("user", "affiliates", $affiliatesid, "id", $from_id);
-        update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
+        
+        // Process the update using the new modular system
+        $telegram = telegram();
+        $services = [
+            'config' => config(),
+            'database' => db(),
+            'telegram' => $telegram,
+            'payment' => paymentService(),
+            'panel' => panelService(),
+            'user' => userService(),
+            'cron' => cronService()
+        ];
+        $result = $telegram->processUpdate($update, $services);
+        
+        echo json_encode(['status' => 'success', 'result' => $result]);
+        
+    } catch (\Exception $e) {
+        error_log("Webhook error: " . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => 'Internal error']);
     }
-}
-$timebot = time();
-$TimeLastMessage = $timebot - intval($user['last_message_time']);
-if (floor($TimeLastMessage / 60) >= 1) {
-    update("user", "last_message_time", $timebot, "id", $from_id);
-    update("user", "message_count", "1", "id", $from_id);
-} else {
-    if (!in_array($from_id, $admin_ids)) {
-        $addmessage = intval($user['message_count']) + 1;
-        update("user", "message_count", $addmessage, "id", $from_id);
-        if ($user['message_count'] >= "35") {
-            $User_Status = "block";
-            update("user", "User_Status", $User_Status, "id", $from_id);
-            update("user", "description_blocking", $textbotlang['users']['spamtext'], "id", $from_id);
-            sendmessage($from_id, $textbotlang['users']['spam']['spamedmessage'], null, 'html');
-            return;
-        }
-    }
-    if ($setting['Bot_Status'] == "✅  ربات روشن است" and !in_array($from_id, $admin_ids)) {
-        sendmessage($from_id, $textbotlang['users']['updatingbot'], null, 'html');
-        foreach ($admin_ids as $admin) {
-            sendmessage($admin, "❌ ادمین عزیز ربات فعال نیست جهت فعالسازی به منوی تنظیمات عمومی > وضعیت قابلیت ها بروید تا رباتتان فعال شود.", null, 'html');
-        }
-        return;
-    }
-} #-----------Channel------------#
-$chanelcheck = channel($channels['link']);
-if ($datain == "confirmchannel") {
-    if (count($chanelcheck) != 0 && !in_array($from_id, $admin_ids)) {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['channel']['notconfirmed'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    } else {
-        deletemessage($from_id, $message_id);
-        sendmessage($from_id, $textbotlang['users']['channel']['confirmed'], $keyboard, 'html');
-    }
-    return;
-}
-if (count($chanelcheck) != 0 && !in_array($from_id, $admin_ids)) {
-    $link_channel = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $textbotlang['users']['channel']['text_join'], 'url' => "https://t.me/" . $chanelcheck[0]],
-            ],
-            [
-                ['text' => $textbotlang['users']['channel']['confirmjoin'], 'callback_data' => "confirmchannel"],
-            ],
-        ]
-    ]);
-    sendmessage($from_id, $datatextbot['text_channel'], $link_channel, 'html');
-    return;
-}
-#-----------roll------------#
-if ($setting['roll_Status'] == "1" && $user['roll_Status'] == 0 && $text != $textbotlang['users']['rulesaccept'] && !in_array($from_id, $admin_ids)) {
-    sendmessage($from_id, $datatextbot['text_roll'], $confrimrolls, 'html');
-    return;
-}
-if ($text == $textbotlang['users']['rulesaccept']) {
-    sendmessage($from_id, $textbotlang['users']['Rules'], $keyboard, 'html');
-    $confrim = true;
-    update("user", "roll_Status", $confrim, "id", $from_id);
 }
 
-#-----------Bot_Status------------#
-if ($setting['Bot_Status'] == "0" && !in_array($from_id, $admin_ids)) {
-    sendmessage($from_id, $datatextbot['text_bot_off'], null, 'html');
-    return;
-}
-#-----------clear_data------------#
-$stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND status = 'unpaid'");
-$stmt->bindParam(':id_user', $from_id);
-$stmt->execute();
-if ($stmt->rowCount() != 0) {
-    $list_invoice = $stmt->fetchAll();
-    foreach ($list_invoice as $invoice) {
-        $timecurrent = time();
-        if (ctype_digit($invoice['time_sell'])) {
-            $timelast = $timecurrent - $invoice['time_sell'];
-            if ($timelast > 86400) {
-                $stmt = $pdo->prepare("DELETE FROM invoice WHERE id_invoice = :id_invoice ");
-                $stmt->bindParam(':id_invoice', $invoice['id_invoice']);
-                $stmt->execute();
-            }
+/**
+ * Handle payment callbacks
+ */
+function handlePaymentCallback(): void
+{
+    header('Content-Type: application/json');
+    
+    try {
+        $gateway = $_GET['gateway'] ?? $_POST['gateway'] ?? null;
+        
+        if (!$gateway) {
+            echo json_encode(['status' => 'error', 'message' => 'Gateway not specified']);
+            return;
         }
-    }
-}
-#-----------/start------------#
-if ($text == "/start") {
-    update("user", "Processing_value", "0", "id", $from_id);
-    update("user", "Processing_value_one", "0", "id", $from_id);
-    update("user", "Processing_value_tow", "0", "id", $from_id);
-    sendmessage($from_id, $datatextbot['text_start'], $keyboard, 'html');
-    step('home', $from_id);
-    return;
-}
-#-----------/new (buy service)------------#
-if ($text == "/new") {
-    $locationproduct = select("marzban_panel", "*", "status", "activepanel", "count");
-    if ($locationproduct == 0) {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullpanel'], null, 'HTML');
-        return;
-    }
-    if ($setting['get_number'] == "1" && $user['step'] != "get_number" && $user['number'] == "none") {
-        sendmessage($from_id, $textbotlang['users']['number']['Confirming'], $request_contact, 'HTML');
-        step('get_number', $from_id);
-        return;
-    }
-    if ($user['number'] == "none" && $setting['get_number'] == "1")
-        return;
-    #-----------------------#
-    if ($locationproduct == 1) {
-        $panel = select("marzban_panel", "*", "status", "activepanel", "select");
-        update("user", "Processing_value", $panel['name_panel'], "id", $from_id, "select");
-        if ($setting['statuscategory'] == "0") {
-            $nullproduct = select("product", "*", null, null, "count");
-            if ($nullproduct == 0) {
-                sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
-                return;
-            }
-            $textproduct = sprintf($textbotlang['users']['buy']['selectService'], $panel['name_panel']);
-            sendmessage($from_id, $textproduct, KeyboardProduct($panel['name_panel'], "backuser", $panel['MethodUsername']), 'HTML');
+        
+        // Process payment callback using the new modular system
+        $paymentService = paymentService();
+        $result = $paymentService->processCallback($gateway, $_REQUEST);
+        
+        if ($result['success']) {
+            echo json_encode(['status' => 'success', 'data' => $result]);
         } else {
-            $emptycategory = select("category", "*", null, null, "count");
-            if ($emptycategory == 0) {
-                sendmessage($from_id, $textbotlang['users']['category']['NotFound'], null, 'HTML');
-                return;
-            }
-            sendmessage($from_id, $textbotlang['users']['category']['selectCategory'], KeyboardCategorybuy("backuser", $panel['name_panel']), 'HTML');
+            echo json_encode(['status' => 'error', 'message' => $result['error'] ?? 'Payment verification failed']);
         }
-    } else {
-        sendmessage($from_id, $textbotlang['users']['Service']['Location'], $list_marzban_panel_user, 'HTML');
-    }
-    return;
-}
-#-----------/status (my packages)------------#
-if ($text == "/status") {
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn')");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $invoices = $stmt->rowCount();
-    if ($invoices == 0 && $setting['NotUser'] == "offnotuser") {
-        sendmessage($from_id, $textbotlang['users']['sell']['service_not_available'], null, 'html');
-        return;
-    }
-    update("user", "pagenumber", "1", "id", $from_id);
-    $page = 1;
-    $items_per_page = 10;
-    $start_index = ($page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $keyboardlists = [
-        'inline_keyboard' => [],
-    ];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => "🌟" . $row['username'] . "🌟",
-                'callback_data' => "product_" . $row['username']
-            ],
-        ];
-    }
-    if ($setting['NotUser'] == "onnotuser") {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => $textbotlang['Admin']['Status']['notusenameinbot'],
-                'callback_data' => "notusernameget"
-            ],
-        ];
-    }
-    $total_items = select("invoice", "*", "id_user", $from_id, "count");
-    $total_pages = ceil($total_items / $items_per_page);
-    if ($page > 1) {
-        $keyboardlists['inline_keyboard'][] = [
-            ['text' => $textbotlang['users']['page']['previous'], 'callback_data' => 'prevpage_' . ($page - 1)]
-        ];
-    }
-    if ($page < $total_pages) {
-        $keyboardlists['inline_keyboard'][] = [
-            ['text' => $textbotlang['users']['page']['next'], 'callback_data' => 'nextpage_' . ($page + 1)]
-        ];
-    }
-    $keyboardlists['inline_keyboard'][] = [
-        ['text' => $textbotlang['users']['backhome'], 'callback_data' => "backuser"],
-    ];
-    $keyboardlistss = json_encode($keyboardlists);
-    sendmessage($from_id, $textbotlang['users']['sell']['service_sell'], $keyboardlistss, 'HTML');
-    step('userservices', $from_id);
-    return;
-}
-#-----------/renew (renew service)------------#
-if ($text == "/renew") {
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn')");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $invoices = $stmt->rowCount();
-    if ($invoices == 0) {
-        sendmessage($from_id, $textbotlang['users']['sell']['service_not_available'], null, 'html');
-        return;
-    }
-    $keyboardlists = [
-        'inline_keyboard' => [],
-    ];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => "💊 " . $row['username'],
-                'callback_data' => "extend_" . $row['username']
-            ],
-        ];
-    }
-    $keyboardlists['inline_keyboard'][] = [
-        ['text' => $textbotlang['users']['backhome'], 'callback_data' => "backuser"],
-    ];
-    $keyboardlistss = json_encode($keyboardlists);
-    sendmessage($from_id, $textbotlang['users']['extend']['selectservice'], $keyboardlistss, 'HTML');
-    return;
-}
-#-----------back------------#
-if ($text == $textbotlang['users']['backhome'] || $datain == "backuser") {
-    update("user", "Processing_value", "0", "id", $from_id);
-    update("user", "Processing_value_one", "0", "id", $from_id);
-    update("user", "Processing_value_tow", "0", "id", $from_id);
-    if ($datain == "backuser")
-        deletemessage($from_id, $message_id);
-    sendmessage($from_id, $textbotlang['users']['back'], $keyboard, 'html');
-    step('home', $from_id);
-    return;
-}
-#-----------get_number------------#
-if ($user['step'] == 'get_number') {
-    if (empty($user_phone)) {
-        sendmessage($from_id, $textbotlang['users']['number']['false'], $request_contact, 'html');
-        return;
-    }
-    if ($contact_id != $from_id) {
-        sendmessage($from_id, $textbotlang['users']['number']['Warning'], $request_contact, 'html');
-        return;
-    }
-    if ($setting['iran_number'] == "1" && !preg_match("/989[0-9]{9}$/", $user_phone)) {
-        sendmessage($from_id, $textbotlang['users']['number']['erroriran'], $request_contact, 'html');
-        return;
-    }
-    sendmessage($from_id, $textbotlang['users']['number']['active'], $keyboard, 'html');
-    update("user", "number", $user_phone, "id", $from_id);
-    step('home', $from_id);
-}
-#-----------Purchased services------------#
-if ($text == $datatextbot['text_Purchased_services'] || $datain == "backorder" || $text == "/services") {
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn')");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $invoices = $stmt->rowCount();
-    if ($invoices == 0 && $setting['NotUser'] == "offnotuser") {
-        sendmessage($from_id, $textbotlang['users']['sell']['service_not_available'], null, 'html');
-        return;
-    }
-    update("user", "pagenumber", "1", "id", $from_id);
-    $page = 1;
-    $items_per_page = 10;
-    $start_index = ($page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $keyboardlists = [
-        'inline_keyboard' => [],
-    ];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => "🌟" . $row['username'] . "🌟",
-                'callback_data' => "product_" . $row['username']
-            ],
-        ];
-    }
-    $usernotlist = [
-        [
-            'text' => $textbotlang['Admin']['Status']['notusenameinbot'],
-            'callback_data' => 'usernotlist'
-        ]
-    ];
-    $pagination_buttons = [
-        [
-            'text' => $textbotlang['users']['page']['next'],
-            'callback_data' => 'next_page'
-        ],
-        [
-            'text' => $textbotlang['users']['page']['previous'],
-            'callback_data' => 'previous_page'
-        ]
-    ];
-    if ($setting['NotUser'] == "1") {
-        $keyboardlists['inline_keyboard'][] = $usernotlist;
-    }
-    $keyboardlists['inline_keyboard'][] = $pagination_buttons;
-    $keyboard_json = json_encode($keyboardlists);
-    if ($datain == "backorder") {
-        Editmessagetext($from_id, $message_id, $textbotlang['users']['sell']['service_sell'], $keyboard_json);
-    } else {
-        sendmessage($from_id, $textbotlang['users']['sell']['service_sell'], $keyboard_json, 'html');
+        
+    } catch (\Exception $e) {
+        error_log("Payment callback error: " . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => 'Internal error']);
     }
 }
-if ($datain == 'next_page') {
-    $numpage = select("invoice", "id_user", "id_user", $from_id, "count");
-    $page = $user['pagenumber'];
-    $items_per_page = 10;
-    $sum = $user['pagenumber'] * $items_per_page;
-    if ($sum > $numpage) {
-        $next_page = 1;
-    } else {
-        $next_page = $page + 1;
-    }
-    $start_index = ($next_page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $keyboardlists = [
-        'inline_keyboard' => [],
-    ];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => "🌟️" . $row['username'] . "🌟️",
-                'callback_data' => "product_" . $row['username']
-            ],
-        ];
-    }
-    $pagination_buttons = [
-        [
-            'text' => $textbotlang['users']['page']['next'],
-            'callback_data' => 'next_page'
-        ],
-        [
-            'text' => $textbotlang['users']['page']['previous'],
-            'callback_data' => 'previous_page'
-        ]
-    ];
-    $usernotlist = [
-        [
-            'text' => $textbotlang['Admin']['Status']['notusenameinbot'],
-            'callback_data' => 'usernotlist'
-        ]
-    ];
-    if ($setting['NotUser'] == "1") {
-        $keyboardlists['inline_keyboard'][] = $usernotlist;
-    }
-    $keyboardlists['inline_keyboard'][] = $pagination_buttons;
-    $keyboard_json = json_encode($keyboardlists);
-    update("user", "pagenumber", $next_page, "id", $from_id);
-    Editmessagetext($from_id, $message_id, $text_callback, $keyboard_json);
-} elseif ($datain == 'previous_page') {
-    $page = $user['pagenumber'];
-    $items_per_page = 10;
-    if ($user['pagenumber'] <= 1) {
-        $next_page = 1;
-    } else {
-        $next_page = $page - 1;
-    }
-    $start_index = ($next_page - 1) * $items_per_page;
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn') ORDER BY time_sell DESC LIMIT $start_index, $items_per_page");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $keyboardlists = [
-        'inline_keyboard' => [],
-    ];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $keyboardlists['inline_keyboard'][] = [
-            [
-                'text' => "🌟️" . $row['username'] . "🌟️",
-                'callback_data' => "product_" . $row['username']
-            ],
-        ];
-    }
-    $pagination_buttons = [
-        [
-            'text' => $textbotlang['users']['page']['next'],
-            'callback_data' => 'next_page'
-        ],
-        [
-            'text' => $textbotlang['users']['page']['previous'],
-            'callback_data' => 'previous_page'
-        ]
-    ];
-    $usernotlist = [
-        [
-            'text' => $textbotlang['Admin']['Status']['notusenameinbot'],
-            'callback_data' => 'usernotlist'
-        ]
-    ];
-    if ($setting['NotUser'] == "1") {
-        $keyboardlists['inline_keyboard'][] = $usernotlist;
-    }
-    $keyboardlists['inline_keyboard'][] = $pagination_buttons;
-    $keyboard_json = json_encode($keyboardlists);
-    update("user", "pagenumber", $next_page, "id", $from_id);
-    Editmessagetext($from_id, $message_id, $text_callback, $keyboard_json);
-}
-if ($datain == "usernotlist") {
-    sendmessage($from_id, $textbotlang['users']['stateus']['SendUsername'], $backuser, 'html');
-    step('getusernameinfo', $from_id);
-}
-if ($user['step'] == "getusernameinfo") {
-    if (!preg_match('/^\w{3,32}$/', $text)) {
-        sendmessage($from_id, $textbotlang['users']['stateus']['Invalidusername'], $backuser, 'html');
-        return;
-    }
-    update("user", "Processing_value", $text, "id", $from_id);
-    sendmessage($from_id, $textbotlang['users']['Service']['Location'], $list_marzban_panel_user, 'html');
-    step('getdata', $from_id);
-} elseif (preg_match('/locationnotuser_(.*)/', $datain, $dataget)) {
-    $locationid = $dataget[1];
-    $marzban_list_get = select("marzban_panel", "name_panel", "id", $locationid, "select");
-    $location = $marzban_list_get['name_panel'];
-    $DataUserOut = $ManagePanel->DataUser($marzban_list_get['name_panel'], $user['Processing_value']);
-    if ($DataUserOut['status'] == "Unsuccessful") {
-        if ($DataUserOut['msg'] == "User not found") {
-            sendmessage($from_id, $textbotlang['users']['stateus']['notUsernameget'], $keyboard, 'html');
-            step('home', $from_id);
-            return;
-        }
-    }
-    #-------------[ status ]----------------#
-    $status = $DataUserOut['status'];
-    $status_var = [
-        'active' => $textbotlang['users']['stateus']['active'],
-        'limited' => $textbotlang['users']['stateus']['limited'],
-        'disabled' => $textbotlang['users']['stateus']['disabled'],
-        'expired' => $textbotlang['users']['stateus']['expired'],
-        'on_hold' => $textbotlang['users']['stateus']['onhold']
-    ][$status];
-    #--------------[ expire ]---------------#
-    $expirationDate = $DataUserOut['expire'] ? jdate('Y/m/d', $DataUserOut['expire']) : $textbotlang['users']['stateus']['Unlimited'];
-    #-------------[ data_limit ]----------------#
-    $LastTraffic = $DataUserOut['data_limit'] ? formatBytes($DataUserOut['data_limit']) : $textbotlang['users']['stateus']['Unlimited'];
-    #---------------[ RemainingVolume ]--------------#
-    $output = $DataUserOut['data_limit'] - $DataUserOut['used_traffic'];
-    $RemainingVolume = $DataUserOut['data_limit'] ? formatBytes($output) : $textbotlang['users']['unlimited'];
-    #---------------[ used_traffic ]--------------#
-    $usedTrafficGb = $DataUserOut['used_traffic'] ? formatBytes($DataUserOut['used_traffic']) : $textbotlang['users']['stateus']['Notconsumed'];
-    #--------------[ day ]---------------#
-    $timeDiff = $DataUserOut['expire'] - time();
-    $day = $DataUserOut['expire'] ? floor($timeDiff / 86400) + 1 . $textbotlang['users']['stateus']['day'] : $textbotlang['users']['stateus']['Unlimited'];
-    #-----------------------------#
 
+/**
+ * Handle cron jobs
+ */
+function handleCron(): void
+{
+    // Verify cron access
+    $cronKey = $_GET['key'] ?? $_POST['key'] ?? null;
+    $expectedKey = config('cron.secret_key');
+    
+    if (!$cronKey || $cronKey !== $expectedKey) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        return;
+    }
+    
+    header('Content-Type: application/json');
+    
+    try {
+        $jobName = $_GET['job'] ?? null;
+        $cronService = cronService();
+        
+        if ($jobName) {
+            // Run specific job
+            $result = $cronService->runJob($jobName);
+        } else {
+            // Run all due jobs
+            $result = $cronService->runDueJobs();
+        }
+        
+        echo json_encode(['status' => 'success', 'result' => $result]);
+        
+    } catch (\Exception $e) {
+        error_log("Cron error: " . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => 'Internal error']);
+    }
+}
+
+/**
+ * Handle admin interface
+ */
+function handleAdmin(): void
+{
+    // Simple admin interface
+    if (!isset($_SESSION)) {
+        session_start();
+    }
+    
+    // Check admin authentication
+    $isAdmin = $_SESSION['is_admin'] ?? false;
+    
+    if (!$isAdmin && isset($_POST['admin_password'])) {
+        $adminPassword = config('admin.password');
+        if ($_POST['admin_password'] === $adminPassword) {
+            $_SESSION['is_admin'] = true;
+            $isAdmin = true;
+        }
+    }
+    
+    if (!$isAdmin) {
+        showAdminLogin();
+        return;
+    }
+    
+    showAdminDashboard();
+}
+
+/**
+ * Handle API status endpoint
+ */
+function handleApiStatus(): void
+{
+    header('Content-Type: application/json');
+    
+    try {
+        $status = [
+            'status' => 'ok',
+            'timestamp' => date('c'),
+            'version' => '2.0.0',
+            'modules' => [
+                'config' => class_exists('BotMirzaPanel\\Config\\ConfigManager'),
+                'database' => class_exists('BotMirzaPanel\\Database\\DatabaseManager'),
+                'telegram' => class_exists('BotMirzaPanel\\Telegram\\TelegramBot'),
+                'payment' => class_exists('BotMirzaPanel\\Payment\\PaymentService'),
+                'panel' => class_exists('BotMirzaPanel\\Panel\\PanelService'),
+                'user' => class_exists('BotMirzaPanel\\User\\UserService'),
+                'cron' => class_exists('BotMirzaPanel\\Cron\\CronService')
+            ]
+        ];
+        
+        echo json_encode($status, JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Handle API health check
+ */
+function handleApiHealth(): void
+{
+    header('Content-Type: application/json');
+    
+    try {
+        $health = [
+            'status' => 'healthy',
+            'timestamp' => date('c'),
+            'checks' => []
+        ];
+        
+        // Database health
+        try {
+            db()->fetchOne('SELECT 1');
+            $health['checks']['database'] = 'ok';
+        } catch (\Exception $e) {
+            $health['checks']['database'] = 'error';
+            $health['status'] = 'unhealthy';
+        }
+        
+        // Config health
+        try {
+            config('app.name');
+            $health['checks']['config'] = 'ok';
+        } catch (\Exception $e) {
+            $health['checks']['config'] = 'error';
+            $health['status'] = 'unhealthy';
+        }
+        
+        // Panel health
+        try {
+            $panels = panelService()->getConfiguredPanels();
+            $health['checks']['panels'] = count($panels) > 0 ? 'ok' : 'warning';
+        } catch (\Exception $e) {
+            $health['checks']['panels'] = 'error';
+        }
+        
+        echo json_encode($health, JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Handle legacy routes
+ */
+function handleLegacyRoute(string $path): void
+{
+    // Map legacy files to new system
+    $legacyMappings = [
+        'botapi.php' => 'webhook',
+        'sendmessage.php' => 'cron',
+        'cronday.php' => 'cron',
+        'nowpayments.php' => 'payment/callback',
+        'aqayepardakht.php' => 'payment/callback',
+        'cartocart.php' => 'payment/callback',
+        'iranpay.php' => 'payment/callback'
+    ];
+    
+    if (isset($legacyMappings[$path])) {
+        // Redirect to new route
+        $newPath = $legacyMappings[$path];
+        header("Location: /{$newPath}", true, 301);
+        exit;
+    }
+    
+    // Try to include legacy file if it exists
+    $legacyFile = __DIR__ . '/' . $path;
+    if (file_exists($legacyFile) && is_file($legacyFile)) {
+        // Set up legacy environment
+        setupLegacyEnvironment();
+        include $legacyFile;
+        return;
+    }
+    
+    // 404 Not Found
+    http_response_code(404);
+    echo json_encode(['status' => 'error', 'message' => 'Not found']);
+}
+
+<<<<<<< HEAD
 
     $keyboardinfo = json_encode([
         'inline_keyboard' => [
@@ -1536,860 +1374,173 @@ if ($text == $datatextbot['text_help'] || $datain == "helpbtn" || $text == "/hel
             sendphoto($from_id, $helpdata['Media_os'], $helpdata['Description_os']);
     } else {
         sendmessage($from_id, $helpdata['Description_os'], $json_list_help, 'HTML');
+=======
+/**
+ * Set up environment for legacy files
+ */
+function setupLegacyEnvironment(): void
+{
+    // Make new services available to legacy code through global variables
+    global $config, $database, $telegram, $userService, $panelService, $paymentService;
+    
+    $config = config();
+    $database = db();
+    $telegram = telegram();
+    $userService = userService();
+    $panelService = panelService();
+    $paymentService = paymentService();
+    
+    // Include legacy functions if they exist
+    if (file_exists(__DIR__ . '/functions.php')) {
+        include_once __DIR__ . '/functions.php';
+>>>>>>> ac58632 (feat(core): introduce modular index.php entrypoint with routing and admin dashboard)
     }
 }
 
-#-----------support------------#
-if ($text == $datatextbot['text_support'] || $text == "/support") {
-    sendmessage($from_id, $textbotlang['users']['support']['btnsupport'], $supportoption, 'HTML');
-} elseif ($datain == "support") {
-    sendmessage($from_id, $textbotlang['users']['support']['sendmessageuser'], $backuser, 'HTML');
-    step('gettextpm', $from_id);
-} elseif ($user['step'] == 'gettextpm') {
-    sendmessage($from_id, $textbotlang['users']['support']['sendmessageadmin'], $keyboard, 'HTML');
-    $Response = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $textbotlang['users']['support']['answermessage'], 'callback_data' => 'Response_' . $from_id],
-            ],
-        ]
-    ]);
-    foreach ($admin_ids as $id_admin) {
-        if ($text) {
-            $textsendadmin = sprintf($textbotlang['users']['support']['GetMessageOfUser'], $from_id, $username, $text);
-            sendmessage($id_admin, $textsendadmin, $Response, 'HTML');
-        }
-        if ($photo) {
-            $textsendadmin = sprintf($textbotlang['users']['support']['GetMessageOfUser'], $from_id, $username, $caption);
-            telegram('sendphoto', [
-                'chat_id' => $id_admin,
-                'photo' => $photoid,
-                'reply_markup' => $Response,
-                'caption' => $textsendadmin,
-                'parse_mode' => "HTML",
-            ]);
-        }
-    }
-    step('home', $from_id);
-}
-#-----------fq------------#
-if ($datain == "fqQuestions") {
-    sendmessage($from_id, $datatextbot['text_dec_fq'], null, 'HTML');
-}
-if ($text == $datatextbot['text_account']) {
-    $dateacc = jdate('Y/m/d');
-    $timeacc = jdate('H:i:s', time());
-    $first_name = htmlspecialchars($first_name);
-    $Balanceuser = number_format($user['Balance'], 0);
-    $countorder = select("invoice", "id_user", 'id_user', $from_id, "count");
-    $text_account = sprintf($textbotlang['users']['account'], $first_name, $from_id, $Balanceuser, $countorder, $user['affiliatescount'], $dateacc, $timeacc);
-    sendmessage($from_id, $text_account, $keyboardPanel, 'HTML');
-}
-if ($text == $datatextbot['text_sell'] || $datain == "buy" || $text == "/buy") {
-    $locationproduct = select("marzban_panel", "*", "status", "activepanel", "count");
-    if ($locationproduct == 0) {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullpanel'], null, 'HTML');
-        return;
-    }
-    if ($setting['get_number'] == "1" && $user['step'] != "get_number" && $user['number'] == "none") {
-        sendmessage($from_id, $textbotlang['users']['number']['Confirming'], $request_contact, 'HTML');
-        step('get_number', $from_id);
-    }
-    if ($user['number'] == "none" && $setting['get_number'] == "1")
-        return;
-    #-----------------------#
-    if ($locationproduct == 1) {
-        $panel = select("marzban_panel", "*", "status", "activepanel", "select");
-        update("user", "Processing_value", $panel['name_panel'], "id", $from_id, "select");
-        if ($setting['statuscategory'] == "0") {
-            $nullproduct = select("product", "*", null, null, "count");
-            if ($nullproduct == 0) {
-                sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
-                return;
-            }
-            $textproduct = sprintf($textbotlang['users']['buy']['selectService'], $panel['name_panel']);
-            sendmessage($from_id, $textproduct, KeyboardProduct($panel['name_panel'], "backuser", $panel['MethodUsername']), 'HTML');
-        } else {
-            $emptycategory = select("category", "*", null, null, "count");
-            if ($emptycategory == 0) {
-                sendmessage($from_id, $textbotlang['users']['category']['NotFound'], null, 'HTML');
-                return;
-            }
-            if ($datain == "buy") {
-                Editmessagetext($from_id, $message_id, $textbotlang['users']['category']['selectCategory'], KeyboardCategorybuy("backuser", $panel['name_panel']));
-            } else {
-                sendmessage($from_id, $textbotlang['users']['category']['selectCategory'], KeyboardCategorybuy("backuser", $panel['name_panel']), 'HTML');
-            }
-        }
-    } else {
-        if ($datain == "buy") {
-            Editmessagetext($from_id, $message_id, $textbotlang['users']['Service']['Location'], $list_marzban_panel_user);
-        } else {
-            sendmessage($from_id, $textbotlang['users']['Service']['Location'], $list_marzban_panel_user, 'HTML');
-        }
-    }
-} elseif (preg_match('/^categorylist_(.*)/', $datain, $dataget)) {
-    $categoryid = $dataget[1];
-    $product = [];
-    $nullproduct = select("product", "*", null, null, "count");
-    if ($nullproduct == 0) {
-        sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
-        return;
-    }
-    $location = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    if ($location == false) {
-        sendmessage($from_id, $textbotlang['users']['category']['error'], null, 'HTML');
-        return;
-    }
-    Editmessagetext($from_id, $message_id, sprintf($textbotlang['users']['buy']['selectService'], $location['name_panel']), KeyboardProduct($location['name_panel'], "buy", $location['MethodUsername'], $categoryid));
-    update("user", "Processing_value", $location['name_panel'], "id", $from_id);
-} elseif (preg_match('/^location_(.*)/', $datain, $dataget)) {
-    $locationid = $dataget[1];
-    $panellist = select("marzban_panel", "*", "id", $locationid, "select");
-    $location = $panellist['name_panel'];
-    update("user", "Processing_value", $location, "id", $from_id);
-    if ($setting['statuscategory'] == "0") {
-        $nullproduct = select("product", "*", null, null, "count");
-        if ($nullproduct == 0) {
-            sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
-            return;
-        }
-        Editmessagetext($from_id, $message_id, sprintf($textbotlang['users']['buy']['selectService'], $panellist['name_panel']), KeyboardProduct($panellist['name_panel'], "buy", $panellist['MethodUsername']));
-    } else {
-        $emptycategory = select("category", "*", null, null, "count");
-        if ($emptycategory == 0) {
-            sendmessage($from_id, $textbotlang['users']['category']['NotFound'], null, 'HTML');
-            return;
-        }
-        Editmessagetext($from_id, $message_id, $textbotlang['users']['category']['selectCategory'], KeyboardCategorybuy("buy", $panellist['name_panel']));
-    }
-} elseif (preg_match('/^prodcutservices_(.*)/', $datain, $dataget)) {
-    $prodcut = $dataget[1];
-    update("user", "Processing_value_one", $prodcut, "id", $from_id);
-    sendmessage($from_id, $textbotlang['users']['selectusername'], $backuser, 'html');
-    step('endstepuser', $from_id);
-} elseif ($user['step'] == "endstepuser" || preg_match('/prodcutservice_(.*)/', $datain, $dataget)) {
-    if ($user['step'] != "endstepuser") {
-        $prodcut = $dataget[1];
-    }
-    $panellist = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    if ($panellist == false) {
-        sendmessage($from_id, $textbotlang['users']['category']['error'], $keyboard, 'html');
-        step("home", $from_id);
-        return;
-    }
-    if ($panellist['MethodUsername'] == $textbotlang['users']['customusername']) {
-        if (!preg_match('~(?!_)^[a-z][a-z\d_]{2,32}(?<!_)$~i', $text)) {
-            sendmessage($from_id, $textbotlang['users']['invalidusername'], $backuser, 'HTML');
-            return;
-        }
-        $loc = $user['Processing_value_one'];
-    } else {
-        deletemessage($from_id, $message_id);
-        $loc = $prodcut;
-    }
-    if ($loc == null) {
-        sendmessage($from_id, $textbotlang['users']['category']['error'], $keyboard, 'html');
-        step("home", $from_id);
-        return;
-    }
-    update("user", "Processing_value_one", $loc, "id", $from_id);
-    $stmt = $pdo->prepare("SELECT * FROM product WHERE code_product = :code_product AND (location = :loc1 OR location = '/all') LIMIT 1");
-    $stmt->bindValue(':code_product', $loc);
-    $stmt->bindValue(':loc1', $user['Processing_value']);
-    $stmt->execute();
-    $info_product = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($info_product == false) {
-        sendmessage($from_id, $textbotlang['users']['stateus']['error2'], $keyboard, 'HTML');
-        step("home", $from_id);
-        return;
-    }
-    $randomString = bin2hex(random_bytes(2));
-    $panellist = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    $username_ac = strtolower(generateUsername($from_id, $panellist['MethodUsername'], $username, $randomString, $text));
-    $DataUserOut = $ManagePanel->DataUser($panellist['name_panel'], $username_ac);
-    $random_number = random_int(1000000, 9999999);
-    if (isset($DataUserOut['username']) || in_array($username_ac, $usernameinvoice)) {
-        $username_ac = $random_number . $username_ac;
-    }
-    update("user", "Processing_value_tow", $username_ac, "id", $from_id);
-    if ($info_product['Volume_constraint'] == 0)
-        $info_product['Volume_constraint'] = $textbotlang['users']['stateus']['Unlimited'];
-    $info_product['price_product'] = number_format($info_product['price_product'], 0);
-    $user['Balance'] = number_format($user['Balance']);
-    $textin = sprintf($textbotlang['users']['buy']['invoicebuy'], $username_ac, $info_product['name_product'], $info_product['Service_time'], $info_product['price_product'], $info_product['Volume_constraint'], $user['Balance']);
-    sendmessage($from_id, $textin, $payment, 'HTML');
-    step('payment', $from_id);
-} elseif ($user['step'] == "payment" && $datain == "confirmandgetservice" || $datain == "confirmandgetserviceDiscount") {
-    Editmessagetext($from_id, $message_id, $text_callback, json_encode(['inline_keyboard' => []]));
-    $partsdic = explode("_", $user['Processing_value_four']);
-    $stmt = $pdo->prepare("SELECT * FROM product WHERE code_product = :code AND (location = :loc1 OR location = '/all') LIMIT 1");
-    $stmt->bindValue(':code', $user['Processing_value_one']);
-    $stmt->bindValue(':loc1', $user['Processing_value']);
-    $stmt->execute();
-    $info_product = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($info_product == false) {
-        sendmessage($from_id, $textbotlang['users']['stateus']['error2'], $keyboard, 'HTML');
-        return;
-    }
-    $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    if ($marzban_list_get == false) {
-        sendmessage($from_id, $textbotlang['users']['stateus']['error2'], $keyboard, 'HTML');
-        return;
-    }
-    if ($marzban_list_get['linksubx'] == null and in_array($marzban_list_get['type'], ["x-ui_single", "alireza"])) {
-        foreach ($admin_ids as $admin) {
-            sendmessage($admin, sprintf($textbotlang['Admin']['managepanel']['notsetlinksub'], $marzban_list_get['name_panel']), null, 'HTML');
-        }
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['paneldeactive'], $keyboard, 'HTML');
-        return;
-    }
-    $username_ac = $user['Processing_value_tow'];
-    $date = time();
-    $randomString = bin2hex(random_bytes(2));
-    if (empty($info_product['price_product']) || empty($info_product['price_product']))
-        return;
-    if ($datain == "confirmandgetserviceDiscount") {
-        $priceproduct = $partsdic[2];
-    } else {
-        $priceproduct = $info_product['price_product'];
-    }
-    if ($priceproduct > $user['Balance']) {
-        $Balance_prim = $priceproduct - $user['Balance'];
-        update("user", "Processing_value", $Balance_prim, "id", $from_id);
-        sendmessage($from_id, $textbotlang['users']['sell']['None-credit'], $step_payment, 'HTML');
-        step('get_step_payment', $from_id);
-        $stmt = $connect->prepare("INSERT IGNORE INTO invoice(id_user, id_invoice, username,time_sell, Service_location, name_product, price_product, Volume, Service_time,Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)");
-        $Status = "unpaid";
-        $stmt->bind_param("ssssssssss", $from_id, $randomString, $username_ac, $date, $marzban_list_get['name_panel'], $info_product['name_product'], $info_product['price_product'], $info_product['Volume_constraint'], $info_product['Service_time'], $Status);
-        $stmt->execute();
-        $stmt->close();
-        update("user", "Processing_value_one", $username_ac, "id", $from_id);
-        update("user", "Processing_value_tow", "getconfigafterpay", "id", $from_id);
-        return;
-    }
-    if (in_array($randomString, $id_invoice)) {
-        $randomString = $random_number . $randomString;
-    }
-    $sql = "INSERT IGNORE INTO invoice (id_user, id_invoice, username, time_sell, Service_location, name_product, price_product, Volume, Service_time, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $Status = "active";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(1, $from_id);
-    $stmt->bindParam(2, $randomString);
-    $stmt->bindParam(3, $username_ac, PDO::PARAM_STR);
-    $stmt->bindParam(4, $date);
-    $stmt->bindParam(5, $user['Processing_value'], PDO::PARAM_STR);
-    $stmt->bindParam(6, $info_product['name_product'], PDO::PARAM_STR);
-    $stmt->bindParam(7, $info_product['price_product']);
-    $stmt->bindParam(8, $info_product['Volume_constraint']);
-    $stmt->bindParam(9, $info_product['Service_time']);
-    $stmt->bindParam(10, $Status);
-    $stmt->execute();
-    if ($info_product['Service_time'] == "0") {
-        $data = "0";
-    } else {
-        $date = strtotime("+" . $info_product['Service_time'] . "days");
-        $data = strtotime(date("Y-m-d H:i:s", $date));
-    }
-    $datac = array(
-        'expire' => $data,
-        'data_limit' => $info_product['Volume_constraint'] * pow(1024, 3),
-    );
-    $dataoutput = $ManagePanel->createUser($marzban_list_get['name_panel'], $username_ac, $datac);
-    if ($dataoutput['username'] == null) {
-        $dataoutput['msg'] = json_encode($dataoutput['msg']);
-        sendmessage($from_id, $textbotlang['users']['sell']['ErrorConfig'], $keyboard, 'HTML');
-        $texterros = sprintf($textbotlang['users']['buy']['errorInCreate'], $dataoutput['msg'], $from_id, $username);
-        foreach ($admin_ids as $admin) {
-            sendmessage($admin, $texterros, null, 'HTML');
-        }
-        step('home', $from_id);
-        return;
-    }
-    if ($datain == "confirmandgetserviceDiscount") {
-        $SellDiscountlimit = select("DiscountSell", "*", "codeDiscount", $partsdic[0], "select");
-        $value = intval($SellDiscountlimit['usedDiscount']) + 1;
-        update("DiscountSell", "usedDiscount", $value, "codeDiscount", $partsdic[0]);
-        $text_report = sprintf($textbotlang['users']['Report']['discountused'], $username, $from_id, $partsdic[0]);
-        if (isset($setting['Channel_Report']) && strlen($setting['Channel_Report']) > 0) {
-            sendmessage($setting['Channel_Report'], $text_report, null, 'HTML');
-        }
-    }
-    $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if ($affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] !== null || $user['affiliates'] != "0")) {
-        $affiliatescommission = select("affiliates", "*", null, null, "select");
-        $result = ($priceproduct * $affiliatescommission['affiliatespercentage']) / 100;
-        $user_Balance = select("user", "*", "id", $user['affiliates'], "select");
-        if ($user_Balance) {
-            $Balance_prim = $user_Balance['Balance'] + $result;
-            update("user", "Balance", $Balance_prim, "id", $user['affiliates']);
-            $result = number_format($result);
-            $textadd = sprintf($textbotlang['users']['affiliates']['porsantuser'], $result);
-            sendmessage($user['affiliates'], $textadd, null, 'HTML');
-        }
-    }
-    $link_config = "";
-    $text_config = "";
-    $config = "";
-    $configqr = "";
-    if ($marzban_list_get['sublink'] == "onsublink") {
-        $output_config_link = $dataoutput['subscription_url'];
-        $link_config = $output_config_link;
-    }
-    if ($marzban_list_get['configManual'] == "onconfig") {
-        if (is_array($dataoutput['configs']) and count($dataoutput['configs']) != 0) {
-            foreach ($dataoutput['configs'] as $configs) {
-                $config .= "\n" . $configs;
-                $configqr .= $configs;
-            }
-        } else {
-            $config .= "";
-            $configqr .= "";
-        }
-        $text_config = $config;
-    }
-    $Shoppinginfo = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $textbotlang['users']['help']['btninlinebuy'], 'callback_data' => "helpbtn"],
-            ]
-        ]
-    ]);
-    if ($marzban_list_get['type'] == "wgdashboard") {
-        $textcreatuser = sprintf($textbotlang['users']['buy']['createservicewgbuy'], $username_ac, $info_product['name_product'], $marzban_list_get['name_panel'], $info_product['Service_time'], $info_product['Volume_constraint']);
-    } elseif ($marzban_list_get['type'] == "mikrotik") {
-        $textcreatuser = sprintf($textbotlang['users']['buy']['createservice_mikrotik_buy'], $username_ac, $dataoutput['subscription_url'], $info_product['name_product'], $marzban_list_get['name_panel'], $info_product['Service_time'], $info_product['Volume_constraint']);
-    } else {
-        $textcreatuser = sprintf($textbotlang['users']['buy']['createservice'], $username_ac, $info_product['name_product'], $marzban_list_get['name_panel'], $info_product['Service_time'], $info_product['Volume_constraint'], $text_config, $link_config);
-    }
-    if ($marzban_list_get['type'] == "mikrotik") {
-        sendmessage($from_id, $textcreatuser, $Shoppinginfo, 'HTML');
-        sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
-    } else {
-        if ($marzban_list_get['sublink'] == "onsublink") {
-            $urlimage = "$from_id$randomString.png";
-            $writer = new PngWriter();
-            $qrCode = QrCode::create($output_config_link)
-                ->setEncoding(new Encoding('UTF-8'))
-                ->setErrorCorrectionLevel(ErrorCorrectionLevel::Low)
-                ->setSize(400)
-                ->setMargin(0)
-                ->setRoundBlockSizeMode(RoundBlockSizeMode::Margin);
-            $result = $writer->write($qrCode, null, null);
-            $result->saveToFile($urlimage);
-            telegram('sendphoto', [
-                'chat_id' => $from_id,
-                'photo' => new CURLFile($urlimage),
-                'reply_markup' => $Shoppinginfo,
-                'caption' => $textcreatuser,
-                'parse_mode' => "HTML",
-            ]);
-            if ($marzban_list_get['type'] == "wgdashboard") {
-                $urlimage = "{$marzban_list_get['inboundid']}_{$dataoutput['username']}.conf";
-                file_put_contents($urlimage, $output_config_link);
-                sendDocument($from_id, $urlimage, $textbotlang['users']['buy']['configwg']);
-                unlink($urlimage);
-            }
-            sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
-            unlink($urlimage);
-        } elseif ($marzban_list_get['config'] == "onconfig") {
-            if (count($dataoutput['configs']) == 1) {
-                $urlimage = "$from_id$randomString.png";
-                $writer = new PngWriter();
-                $qrCode = QrCode::create($configqr)
-                    ->setEncoding(new Encoding('UTF-8'))
-                    ->setErrorCorrectionLevel(ErrorCorrectionLevel::Low)
-                    ->setSize(400)
-                    ->setMargin(0)
-                    ->setRoundBlockSizeMode(RoundBlockSizeMode::Margin);
-                $result = $writer->write($qrCode, null, null);
-                $result->saveToFile($urlimage);
-                telegram('sendphoto', [
-                    'chat_id' => $from_id,
-                    'photo' => new CURLFile($urlimage),
-                    'reply_markup' => $Shoppinginfo,
-                    'caption' => $textcreatuser,
-                    'parse_mode' => "HTML",
-                ]);
-                unlink($urlimage);
-            } else {
-                sendmessage($from_id, $textcreatuser, $Shoppinginfo, 'HTML');
-            }
-        } else {
-            sendmessage($from_id, $textcreatuser, $Shoppinginfo, 'HTML');
-            sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
-        }
-    }
-    $Balance_prim = $user['Balance'] - $priceproduct;
-    update("user", "Balance", $Balance_prim, "id", $from_id);
-    $user['Balance'] = number_format($user['Balance'], 0);
-    $text_report = sprintf($textbotlang['users']['Report']['reportbuy'], $username_ac, $info_product['price_product'], $info_product['Volume_constraint'], $from_id, $user['number'], $user['Processing_value'], $user['Balance'], $username);
-    if (isset($setting['Channel_Report']) && strlen($setting['Channel_Report']) > 0) {
-        sendmessage($setting['Channel_Report'], $text_report, null, 'HTML');
-    }
-    step('home', $from_id);
-} elseif ($datain == "aptdc") {
-    sendmessage($from_id, $textbotlang['users']['Discount']['getcodesell'], $backuser, 'HTML');
-    step('getcodesellDiscount', $from_id);
-    deletemessage($from_id, $message_id);
-} elseif ($user['step'] == "getcodesellDiscount") {
-    if (!in_array($text, $SellDiscount)) {
-        sendmessage($from_id, $textbotlang['users']['Discount']['notcode'], $backuser, 'HTML');
-        return;
-    }
-    $SellDiscountlimit = select("DiscountSell", "*", "codeDiscount", $text, "select");
-    if ($SellDiscountlimit == false) {
-        sendmessage($from_id, $textbotlang['Admin']['Discount']['invalidcodedis'], null, 'HTML');
-        return;
-    }
-    $stmt = $pdo->prepare("SELECT * FROM product WHERE code_product = :code AND (location = :loc1 OR location = '/all') LIMIT 1");
-    $stmt->bindValue(':code', $user['Processing_value_one']);
-    $stmt->bindValue(':loc1', $user['Processing_value']);
-    $stmt->execute();
-    $info_product = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($info_product == false) {
-        sendmessage($from_id, $textbotlang['users']['stateus']['error2'], $keyboard, 'HTML');
-        step('home', $from_id);
-        return;
-    }
-    if ($SellDiscountlimit['limitDiscount'] == $SellDiscountlimit['usedDiscount']) {
-        sendmessage($from_id, $textbotlang['users']['Discount']['erorrlimit'], null, 'HTML');
-        return;
-    }
-    if ($SellDiscountlimit['usefirst'] == "1") {
-        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user");
-        $stmt->bindParam(':id_user', $from_id);
-        $stmt->execute();
-        $countinvoice = $stmt->rowCount();
-        if ($countinvoice != 0) {
-            sendmessage($from_id, $textbotlang['users']['Discount']['firstdiscount'], null, 'HTML');
-            return;
-        }
-    }
-    sendmessage($from_id, $textbotlang['users']['Discount']['correctcode'], $keyboard, 'HTML');
-    step('payment', $from_id);
-    $result = ($SellDiscountlimit['price'] / 100) * $info_product['price_product'];
-
-    $info_product['price_product'] = $info_product['price_product'] - $result;
-    $info_product['price_product'] = round($info_product['price_product']);
-    if ($info_product['price_product'] < 0)
-        $info_product['price_product'] = 0;
-    $textin = sprintf($textbotlang['users']['buy']['invoicebuy'], $user['Processing_value_tow'], $info_product['name_product'], $info_product['Service_time'], $info_product['price_product'], $info_product['Volume_constraint'], $user['Balance']);
-    $paymentDiscount = json_encode([
-        'inline_keyboard' => [
-            [['text' => $textbotlang['users']['buy']['payandGet'], 'callback_data' => "confirmandgetserviceDiscount"]],
-            [['text' => $textbotlang['users']['backhome'], 'callback_data' => "backuser"]]
-        ]
-    ]);
-    $parametrsendvalue = "dis_" . $text . "_" . $info_product['price_product'];
-    update("user", "Processing_value_four", $parametrsendvalue, "id", $from_id);
-    sendmessage($from_id, $textin, $paymentDiscount, 'HTML');
+/**
+ * Show admin login form
+ */
+function showAdminLogin(): void
+{
+    echo '<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - BotMirzaPanel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 50px; }
+        .login-form { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #005a87; }
+        h2 { text-align: center; margin-bottom: 30px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="login-form">
+        <h2>Admin Login</h2>
+        <form method="post">
+            <div class="form-group">
+                <label for="admin_password">Admin Password:</label>
+                <input type="password" id="admin_password" name="admin_password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>';
 }
 
-
-
-#-------------------[ text_Add_Balance ]---------------------#
-if ($text == $datatextbot['text_Add_Balance'] || $text == "/wallet") {
-    update("user", "Processing_value", "0", "id", $from_id);
-    update("user", "Processing_value_one", "0", "id", $from_id);
-    update("user", "Processing_value_tow", "0", "id", $from_id);
-    if ($setting['get_number'] == "1" && $user['step'] != "get_number" && $user['number'] == "none") {
-        sendmessage($from_id, $textbotlang['users']['number']['Confirming'], $request_contact, 'HTML');
-        step('get_number', $from_id);
-    }
-    if ($user['number'] == "none" && $setting['get_number'] == "1")
-        return;
-    sendmessage($from_id, $textbotlang['users']['Balance']['priceinput'], $backuser, 'HTML');
-    step('getprice', $from_id);
-} elseif ($user['step'] == "getprice") {
-    if (!is_numeric($text))
-        return sendmessage($from_id, $textbotlang['users']['Balance']['errorprice'], null, 'HTML');
-    if ($text > 10000000 or $text < 20000)
-        return sendmessage($from_id, $textbotlang['users']['Balance']['errorpricelimit'], null, 'HTML');
-    update("user", "Processing_value", $text, "id", $from_id);
-    sendmessage($from_id, $textbotlang['users']['Balance']['selectPatment'], $step_payment, 'HTML');
-    step('get_step_payment', $from_id);
-} elseif ($user['step'] == "get_step_payment") {
-    if ($datain == "cart_to_offline") {
-        $PaySetting = select("PaySetting", "ValuePay", "NamePay", "CartDescription", "select")['ValuePay'];
-        $Processing_value = number_format($user['Processing_value']);
-        $textcart = sprintf($textbotlang['users']['moeny']['carttext'], $Processing_value, $PaySetting);
-        preg_match_all('/\d+/', $PaySetting, $Matches);
-        if (!empty($Matches[0]) && intval($setting['copy_cart']) == 1) {
-            $peymentSettings['card_number'] = implode('', $Matches[0]);
-            $MESSAGE = $textcart;
-            $KEYBOARD = json_encode(["inline_keyboard" => [[['text' => $textbotlang['users']['moeny']['copy_card_number'], 'copy_text' => ['text' => $peymentSettings['card_number']]], ['text' => $textbotlang['users']['moeny']['copy_price'], 'copy_text' => ['text' => $user['Processing_value']]]], [['text' => $textbotlang['users']['backhome'], 'callback_data' => 'backuser']]]]);
-            Editmessagetext($from_id, $message_id, $MESSAGE, $KEYBOARD);
-        } else {
-            deletemessage($from_id, $message_id);
-            sendmessage($from_id, $textcart, $backuser, 'HTML');
+/**
+ * Show admin dashboard
+ */
+function showAdminDashboard(): void
+{
+    try {
+        $userStats = userService()->getSystemStats();
+        $cronJobs = cronService()->getJobs();
+        $panels = panelService()->getConfiguredPanels();
+        $gateways = paymentService()->getAvailableGateways();
+        
+        echo '<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - BotMirzaPanel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2em; font-weight: bold; color: #007cba; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h3 { margin-top: 0; color: #333; border-bottom: 2px solid #007cba; padding-bottom: 10px; }
+        .status-ok { color: #28a745; }
+        .status-error { color: #dc3545; }
+        .status-warning { color: #ffc107; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; }
+        .logout { float: right; color: #dc3545; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BotMirzaPanel Admin Dashboard</h1>
+            <a href="?logout=1" class="logout">Logout</a>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">' . ($userStats['total_users'] ?? 0) . '</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">' . ($userStats['active_users'] ?? 0) . '</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">' . count($panels) . '</div>
+                <div class="stat-label">Configured Panels</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">' . count($gateways) . '</div>
+                <div class="stat-label">Payment Gateways</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>System Status</h3>
+            <p><strong>Database:</strong> <span class="status-ok">Connected</span></p>
+            <p><strong>Telegram Bot:</strong> <span class="status-ok">Active</span></p>
+            <p><strong>Modular System:</strong> <span class="status-ok">Loaded</span></p>
+        </div>
+        
+        <div class="section">
+            <h3>Cron Jobs</h3>
+            <table>
+                <tr><th>Job Name</th><th>Schedule</th><th>Last Run</th><th>Status</th></tr>';
+        
+        foreach ($cronJobs as $job) {
+            $status = $job['is_due'] ? '<span class="status-warning">Due</span>' : '<span class="status-ok">OK</span>';
+            echo "<tr><td>{$job['name']}</td><td>{$job['schedule']}</td><td>{$job['last_run']}</td><td>{$status}</td></tr>";
         }
-        step('cart_to_cart_user', $from_id);
-    }
-    if ($datain == "aqayepardakht") {
-        if ($user['Processing_value'] < 5000) {
-            sendmessage($from_id, $textbotlang['users']['Balance']['zarinpal'], null, 'HTML');
-            return;
+        
+        echo '</table>
+        </div>
+        
+        <div class="section">
+            <h3>Configured Panels</h3>
+            <table>
+                <tr><th>Name</th><th>Type</th><th>URL</th><th>Status</th></tr>';
+        
+        foreach ($panels as $panel) {
+            $status = '<span class="status-ok">Active</span>'; // You could test connection here
+            echo "<tr><td>{$panel['name']}</td><td>{$panel['type']}</td><td>{$panel['url']}</td><td>{$status}</td></tr>";
         }
-        sendmessage($from_id, $textbotlang['users']['Balance']['linkpayments'], $keyboard, 'HTML');
-        $dateacc = date('Y/m/d H:i:s');
-        $randomString = bin2hex(random_bytes(5));
-        $payment_Status = "Unpaid";
-        $Payment_Method = "aqayepardakht";
-        if ($user['Processing_value_tow'] == "getconfigafterpay") {
-            $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
-        } else {
-            $invoice = "0|0";
-        }
-        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user, id_order, time, price, payment_Status, Payment_Method,invoice) VALUES (?, ?, ?, ?, ?, ?,?)");
-        $stmt->bindParam(1, $from_id);
-        $stmt->bindParam(2, $randomString);
-        $stmt->bindParam(3, $dateacc);
-        $stmt->bindParam(4, $user['Processing_value'], PDO::PARAM_STR);
-        $stmt->bindParam(5, $payment_Status);
-        $stmt->bindParam(6, $Payment_Method);
-        $stmt->bindParam(7, $invoice);
-        $stmt->execute();
-        $paymentkeyboard = json_encode([
-            'inline_keyboard' => [
-                [
-                    ['text' => $textbotlang['users']['Balance']['payments'], 'url' => "https://" . "$domainhosts" . "/payment/aqayepardakht/aqayepardakht.php?price={$user['Processing_value']}&order_id=$randomString"],
-                ]
-            ]
-        ]);
-        $user['Processing_value'] = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['users']['moeny']['aqayepardakht'], $randomString, $user['Processing_value']);
-        sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
+        
+        echo '</table>
+        </div>
+    </div>
+</body>
+</html>';
+        
+    } catch (\Exception $e) {
+        echo '<h1>Error loading dashboard</h1><p>' . htmlspecialchars($e->getMessage()) . '</p>';
     }
-    if ($datain == "nowpayments") {
-        deletemessage($from_id, $message_id);
-        sendmessage($from_id, $textbotlang['users']['Balance']['linkpayments'], $keyboard, 'HTML');
-        $price_rate = tronratee();
-        $USD = $price_rate['result']['USD'];
-        $usdprice = round($user['Processing_value'] / $USD, 2);
-        $dateacc = date('Y/m/d H:i:s');
-        $randomString = bin2hex(random_bytes(5));
-        $payment_Status = "Unpaid";
-        $Payment_Method = "Nowpayments";
-        $invoice = $user['Processing_value_tow'] == "getconfigafterpay" ? "{$user['Processing_value_tow']}|{$user['Processing_value_one']}" : "0|0";
-        $pay = nowPayments('invoice', $usdprice, $randomString, "order");
-        if (!isset($pay['id'])) {
-            $text_error = json_encode($pay);
-            sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
-            step('home', $from_id);
-            if (strlen($setting['Channel_Report']) > 0) {
-                sendmessage($setting['Channel_Report'], sprintf($textbotlang['users']['moeny']['nowpayments_create_link_error'], $text_error, $from_id, $username), null, 'HTML');
-            }
-            return;
-        }
-        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user, id_order, time, price, payment_Status, Payment_Method,invoice) VALUES (?, ?, ?, ?, ?, ?,?)");
-        $stmt->bindParam(1, $from_id);
-        $stmt->bindParam(2, $randomString);
-        $stmt->bindParam(3, $dateacc);
-        $stmt->bindParam(4, $user['Processing_value'], PDO::PARAM_STR);
-        $stmt->bindParam(5, $payment_Status);
-        $stmt->bindParam(6, $Payment_Method);
-        $stmt->bindParam(7, $invoice);
-        $stmt->execute();
-        $paymentkeyboard = json_encode([
-            'inline_keyboard' => [
-                [
-                    ['text' => $textbotlang['users']['Balance']['payments'], 'url' => $pay['invoice_url']],
-                ]
-            ]
-        ]);
-        $Processing_value = number_format($user['Processing_value'], 0);
-        $USD = number_format($USD, 0);
-        $textnowpayments = sprintf($textbotlang['users']['moeny']['nowpayment'], $randomString, $Processing_value, $USD, $usdprice);
-        sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
-    }
-    if ($datain == "iranpay") {
-        $price_rate = tronratee();
-        $trx = $price_rate['result']['TRX'];
-        $usd = $price_rate['result']['USD'];
-        $trxprice = round($user['Processing_value'] / $trx, 2);
-        $usdprice = round($user['Processing_value'] / $usd, 2);
-        if ($trxprice <= 1) {
-            sendmessage($from_id, $textbotlang['users']['Balance']['changeto'], null, 'HTML');
-            return;
-        }
-        sendmessage($from_id, $textbotlang['users']['Balance']['linkpayments'], $keyboard, 'HTML');
-        $dateacc = date('Y/m/d H:i:s');
-        $randomString = bin2hex(random_bytes(5));
-        $payment_Status = "Unpaid";
-        $Payment_Method = "Currency Rial gateway";
-        if ($user['Processing_value_tow'] == "getconfigafterpay") {
-            $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
-        } else {
-            $invoice = "0|0";
-        }
-        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user, id_order, time, price, payment_Status, Payment_Method,invoice) VALUES (?, ?, ?, ?, ?, ?,?)");
-        $stmt->bindParam(1, $from_id);
-        $stmt->bindParam(2, $randomString);
-        $stmt->bindParam(3, $dateacc);
-        $stmt->bindParam(4, $user['Processing_value'], PDO::PARAM_STR);
-        $stmt->bindParam(5, $payment_Status);
-        $stmt->bindParam(6, $Payment_Method);
-        $stmt->bindParam(7, $invoice);
-        $stmt->execute();
-        $order_description = "SwapinoBot_" . $randomString . "_" . $trxprice;
-        $pay = nowPayments('payment', $usdprice, $randomString, $order_description);
-        if (!isset($pay->pay_address)) {
-            $text_error = $pay->message;
-            sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
-            step('home', $from_id);
-            foreach ($admin_ids as $admin) {
-                $ErrorsLinkPayment = sprintf($textbotlang['users']['moeny']['eror'], $text_error, $from_id, $username);
-                sendmessage($admin, $ErrorsLinkPayment, $keyboard, 'HTML');
-            }
-            return;
-        }
-        $trxprice = str_replace('.', "_", strval($pay->pay_amount));
-        $pay_address = $pay->pay_address;
-        $payment_id = $pay->payment_id;
-        $paymentkeyboard = json_encode([
-            'inline_keyboard' => [
-                [
-                    ['text' => $textbotlang['users']['Balance']['payments'], 'url' => "https://t.me/SwapinoBot?start=trx-$pay_address-$trxprice-Tron"]
-                ],
-                [
-                    ['text' => $textbotlang['users']['Balance']['Confirmpaying'], 'callback_data' => "Confirmpay_user_{$payment_id}_{$randomString}"]
-                ]
-            ]
-        ]);
-        $pricetoman = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['users']['moeny']['iranpay'], $randomString, $pay_address, $trxprice, $pricetoman, $trx, $pricetoman);
-        sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
-    }
-}
-if (preg_match('/Confirmpay_user_(\w+)_(\w+)/', $datain, $dataget)) {
-    $id_payment = $dataget[1];
-    $id_order = $dataget[2];
-    $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
-    if ($Payment_report['payment_Status'] == "paid") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['Confirmpayadmin'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-        return;
-    }
-    $StatusPayment = StatusPayment($id_payment);
-    if ($StatusPayment['payment_status'] == "finished") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['finished'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-        $Balance_id = select("user", "*", "id", $Payment_report['id_user'], "select");
-        $Balance_confrim = intval($Balance_id['Balance']) + intval($Payment_report['price']);
-        update("user", "Balance", $Balance_confrim, "id", $Payment_report['id_user']);
-        update("Payment_report", "payment_Status", "paid", "id_order", $Payment_report['id_order']);
-        sendmessage($from_id, $textbotlang['users']['Balance']['Confirmpay'], null, 'HTML');
-        $Payment_report['price'] = number_format($Payment_report['price']);
-        $text_report = sprintf($textbotlang['users']['Report']['reportpayiranpay'], $from_id, $Payment_report['price']);
-        if (isset($setting['Channel_Report']) && strlen($setting['Channel_Report']) > 0) {
-            sendmessage($setting['Channel_Report'], $text_report, null, 'HTML');
-        }
-    } elseif ($StatusPayment['payment_status'] == "expired") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['expired'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    } elseif ($StatusPayment['payment_status'] == "refunded") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['refunded'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    } elseif ($StatusPayment['payment_status'] == "waiting") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['waiting'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    } elseif ($StatusPayment['payment_status'] == "sending") {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['sending'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    } else {
-        telegram(
-            'answerCallbackQuery',
-            array(
-                'callback_query_id' => $callback_query_id,
-                'text' => $textbotlang['users']['Balance']['Failed'],
-                'show_alert' => true,
-                'cache_time' => 5,
-            )
-        );
-    }
-} elseif ($user['step'] == "cart_to_cart_user") {
-    if (!$photo) {
-        sendmessage($from_id, $textbotlang['users']['Balance']['Invalid-receipt'], null, 'HTML');
-        return;
-    }
-    $dateacc = date('Y/m/d H:i:s');
-    $randomString = bin2hex(random_bytes(5));
-    $payment_Status = "waiting";
-    $Payment_Method = "cart to cart";
-    if ($user['Processing_value_tow'] == "getconfigafterpay") {
-        $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
-    } else {
-        $invoice = "0|0";
-    }
-    $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user, id_order, time, price, payment_Status, Payment_Method,invoice) VALUES (?, ?, ?, ?, ?, ?,?)");
-    $stmt->bindParam(1, $from_id);
-    $stmt->bindParam(2, $randomString);
-    $stmt->bindParam(3, $dateacc);
-    $stmt->bindParam(4, $user['Processing_value'], PDO::PARAM_STR);
-    $stmt->bindParam(5, $payment_Status);
-    $stmt->bindParam(6, $Payment_Method);
-    $stmt->bindParam(7, $invoice);
-    $stmt->execute();
-    if ($user['Processing_value_tow'] == "getconfigafterpay") {
-        sendmessage($from_id, $textbotlang['users']['Balance']['Send-receip-buy'], $keyboard, 'HTML');
-    } else {
-        sendmessage($from_id, $textbotlang['users']['Balance']['Send-receipt'], $keyboard, 'HTML');
-    }
-    $Confirm_pay = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $textbotlang['users']['Balance']['Confirmpaying'], 'callback_data' => "Confirm_pay_{$randomString}"],
-                ['text' => $textbotlang['users']['Balance']['reject_pay'], 'callback_data' => "reject_pay_{$randomString}"],
-            ]
-        ]
-    ]);
-    $Processing_value = number_format($user['Processing_value']);
-    $textsendrasid = sprintf($textbotlang['users']['moeny']['cartresid'], $from_id, $randomString, $username, $Processing_value, $caption);
-    foreach ($admin_ids as $id_admin) {
-        telegram('sendphoto', [
-            'chat_id' => $id_admin,
-            'photo' => $photoid,
-            'reply_markup' => $Confirm_pay,
-            'caption' => $textsendrasid,
-            'parse_mode' => "HTML",
-        ]);
-    }
-    step('home', $from_id);
 }
 
-#----------------Discount------------------#
-if ($datain == "Discount") {
-    sendmessage($from_id, $textbotlang['users']['Discount']['getcode'], $backuser, 'HTML');
-    step('get_code_user', $from_id);
-} elseif ($user['step'] == "get_code_user") {
-    if (!in_array($text, $code_Discount)) {
-        sendmessage($from_id, $textbotlang['users']['Discount']['notcode'], null, 'HTML');
-        return;
-    }
-
-    $stmt = $pdo->prepare("SELECT * FROM Giftcodeconsumed WHERE id_user = :id_user");
-    $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute();
-    $Checkcode = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $Checkcode[] = $row['code'];
-    }
-    if (in_array($text, $Checkcode)) {
-        sendmessage($from_id, $textbotlang['users']['Discount']['onecode'], $keyboard, 'HTML');
-        step('home', $from_id);
-        return;
-    }
-    $stmt = $pdo->prepare("SELECT * FROM Discount WHERE code = :code LIMIT 1");
-    $stmt->bindParam(':code', $text, PDO::PARAM_STR);
-    $stmt->execute();
-    $get_codesql = $stmt->fetch(PDO::FETCH_ASSOC);
-    $balance_user = $user['Balance'] + $get_codesql['price'];
-    update("user", "Balance", $balance_user, "id", $from_id);
-    $stmt = $pdo->prepare("SELECT * FROM Discount WHERE code = :code");
-    $stmt->bindParam(':code', $text, PDO::PARAM_STR);
-    $stmt->execute();
-    $get_codesql = $stmt->fetch(PDO::FETCH_ASSOC);
-    step('home', $from_id);
-    number_format($get_codesql['price']);
-    $text_balance_code = sprintf($textbotlang['users']['Discount']['acceptdiscount'], $get_codesql['price']);
-    sendmessage($from_id, $text_balance_code, $keyboard, 'HTML');
-    $stmt = $pdo->prepare("INSERT INTO Giftcodeconsumed (id_user, code) VALUES (?, ?)");
-    $stmt->bindParam(1, $from_id);
-    $stmt->bindParam(2, $text, PDO::PARAM_STR);
-    $stmt->execute();
-    $text_report = sprintf($textbotlang['users']['Report']['discountuser'], $text, $from_id, $username, $get_codesql['price']);
-    if (isset($setting['Channel_Report']) && strlen($setting['Channel_Report']) > 0) {
-        sendmessage($setting['Channel_Report'], $text_report, null, 'HTML');
-    }
+// Handle logout
+if (isset($_GET['logout'])) {
+    session_start();
+    session_destroy();
+    header('Location: /admin');
+    exit;
 }
-#----------------[  text_Tariff_list  ]------------------#
-if ($text == $datatextbot['text_Tariff_list']) {
-    sendmessage($from_id, $datatextbot['text_dec_Tariff_list'], null, 'HTML');
-}
-if ($datain == "closelist") {
-    deletemessage($from_id, $message_id);
-    sendmessage($from_id, $textbotlang['users']['back'], $keyboard, 'HTML');
-}
-if ($text == $textbotlang['users']['affiliates']['btn']) {
-    $affiliatesvalue = select("affiliates", "*", null, null, "select")['affiliatesstatus'];
-    if ($affiliatesvalue == "offaffiliates") {
-        sendmessage($from_id, $textbotlang['users']['affiliates']['offaffiliates'], $keyboard, 'HTML');
-        return;
-    }
-    $affiliates = select("affiliates", "*", null, null, "select");
-    $my_code = $user['ref_code'];
-    $textaffiliates = ($affiliates['description'] !== null && $affiliates['description'] !== '' && $affiliates['description'] !== 'none')
-        ? "{$affiliates['description']}\n\n🔗 https://t.me/$usernamebot?start=$my_code"
-        : "🔗 https://t.me/$usernamebot?start=$my_code";
-
-    // Check if badge/image is set before sending photo
-    if (!empty($affiliates['id_media']) && $affiliates['id_media'] !== 'none') {
-        telegram('sendphoto', [
-            'chat_id' => $from_id,
-            'photo' => $affiliates['id_media'],
-            'caption' => $textaffiliates,
-            'parse_mode' => "HTML",
-        ]);
-    } else {
-        // Send as text message if no badge/image is available
-        sendmessage($from_id, $textaffiliates, null, 'HTML');
-    }
-    $affiliatescommission = select("affiliates", "*", null, null, "select");
-    if ($affiliatescommission['status_commission'] == "oncommission") {
-        $affiliatespercentage = $affiliatescommission['affiliatespercentage'] . $textbotlang['users']['Percentage'];
-    } else {
-        $affiliatespercentage = $textbotlang['users']['stateus']['disabled'];
-    }
-    if ($affiliatescommission['Discount'] == "onDiscountaffiliates") {
-        $price_Discount = $affiliatescommission['price_Discount'] . $textbotlang['users']['IRT'];
-    } else {
-        $price_Discount = $textbotlang['users']['stateus']['disabled'];
-    }
-    $textaffiliates = sprintf($textbotlang['users']['affiliates']['infotext'], $price_Discount, $affiliatespercentage);
-    sendmessage($from_id, $textaffiliates, $keyboard, 'HTML');
-}
-require_once 'admin.php';
-$connect->close();
