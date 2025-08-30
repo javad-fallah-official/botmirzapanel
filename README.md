@@ -1,8 +1,6 @@
-# 🤖 Bot Mirza Panel
+# BotMirzaPanel
 
-
-
-A Powerful Bot for Selling VPN Services with Auto Configuration Build.
+A modern, scalable Telegram bot management panel built with Clean Architecture principles and Domain-Driven Design. Features comprehensive user management, multi-gateway payment processing, and robust bot administration capabilities.
 
 <p align="center">
     <a href="https://t.me/mirzapanel" target="_blank">
