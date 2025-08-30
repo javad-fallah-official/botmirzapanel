@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\ValueObjects;
+namespace BotMirzaPanel\Domain\ValueObjects;
 
 /**
  * Money value object
