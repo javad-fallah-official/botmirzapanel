@@ -25,7 +25,8 @@
     },
     "autoload": {
         "psr-4": {
-            "BotMirzaPanel\\": "src/"
+            "BotMirzaPanel\\": "src/",
+            "App\\": "src/"
         },
         "files": [
             "src/helpers.php"
