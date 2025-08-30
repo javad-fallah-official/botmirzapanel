@@ -24,9 +24,12 @@ class Application
     private UserService $user;
     private CronService $cron;
     private array $services = [];
+    // Store reference to container for lazy/fallback resolution
+    private $container;
 
-    public function __construct()
+    public function __construct($container)
     {
+        $this->container = $container;
         $this->initializeServices();
     }
 
@@ -35,18 +38,16 @@ class Application
      */
     private function initializeServices(): void
     {
-        // Core services
-        $this->config = new ConfigManager();
-        $this->database = new DatabaseManager($this->config);
-        
-        // Application services
-        $this->telegram = new TelegramBot($this->config);
-        $this->payment = new PaymentService($this->config, $this->database);
-        $this->panel = new PanelService($this->config, $this->database);
-        $this->user = new UserService($this->config, $this->database);
-        $this->cron = new CronService($this->config, $this->database, $this->user, $this->panel, $this->telegram);
-        
-        // Register services in container
+        // Resolve from container instead of manual instantiation
+        $this->config = $this->container->get('config');
+        $this->database = $this->container->get('database');
+        $this->telegram = $this->container->get('telegram');
+        $this->payment = $this->container->get('payment');
+        $this->panel = $this->container->get('panel');
+        $this->user = $this->container->get('user');
+        $this->cron = $this->container->get('cron');
+
+        // Register services map for easy access
         $this->services = [
             'config' => $this->config,
             'database' => $this->database,
@@ -63,11 +64,12 @@ class Application
      */
     public function getService(string $name): object
     {
-        if (!isset($this->services[$name])) {
-            throw new \InvalidArgumentException("Service '{$name}' not found");
+        if (isset($this->services[$name])) {
+            return $this->services[$name];
         }
-        
-        return $this->services[$name];
+
+        // Fallback to container lookup for lazily registered services
+        return $this->container->get($name);
     }
 
     /**
