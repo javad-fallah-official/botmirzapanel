@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Services;
+namespace BotMirzaPanel\Domain\Services;
 
-use App\Domain\Entities\Payment;
-use App\Domain\Entities\User;
-use App\Domain\ValueObjects\Money;
-use App\Domain\Repositories\PaymentRepositoryInterface;
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Shared\Utils\StringHelper;
-use App\Shared\Constants\AppConstants;
-use App\Shared\Exceptions\ValidationException;
-use App\Shared\Exceptions\ServiceException;
+use BotMirzaPanel\Domain\Entities\Payment;
+use BotMirzaPanel\Domain\Entities\User;
+use BotMirzaPanel\Domain\ValueObjects\Money;
+use BotMirzaPanel\Domain\Repositories\PaymentRepositoryInterface;
+use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
+use BotMirzaPanel\Shared\Utils\StringHelper;
+use BotMirzaPanel\Shared\Constants\AppConstants;
+use BotMirzaPanel\Shared\Exceptions\ValidationException;
+use BotMirzaPanel\Shared\Exceptions\ServiceException;
 
 /**
  * Payment domain service
