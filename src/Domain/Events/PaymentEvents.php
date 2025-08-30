@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Events;
+namespace BotMirzaPanel\Domain\Events;
 
-use App\Domain\ValueObjects\Money;
+use BotMirzaPanel\Domain\ValueObjects\Money;
 
 /**
  * Payment created event
