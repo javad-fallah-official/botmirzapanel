@@ -1,13 +1,13 @@
 <?php
 ini_set('error_log', 'error_log');
 require_once 'config.php';
-require_once 'marzban.php';
-require_once 'x-ui_single.php';
-require_once 'marzneshin.php';
-require_once 'alireza_single.php';
-require_once 's_ui.php';
-require_once 'wgdashboard.php';
-require_once 'mikrotik.php';
+require_once 'src/Panel/Adapters/marzban.php';
+require_once 'src/Panel/Adapters/x-ui_single.php';
+require_once 'src/Panel/Adapters/marzneshin.php';
+require_once 'src/Panel/Adapters/alireza_single.php';
+require_once 'src/Panel/Adapters/s_ui.php';
+require_once 'src/Panel/Adapters/wgdashboard.php';
+require_once 'src/Panel/Adapters/mikrotik.php';
 class ManagePanel{
     public $name_panel;
     public $connect;
