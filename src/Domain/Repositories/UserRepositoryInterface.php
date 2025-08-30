@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Repositories;
+namespace BotMirzaPanel\Domain\Repositories;
 
-use App\Domain\Entities\User;
-use App\Domain\ValueObjects\UserId;
-use App\Domain\ValueObjects\Email;
-use App\Shared\Contracts\RepositoryInterface;
+use BotMirzaPanel\Domain\Entities\User;
+use BotMirzaPanel\Domain\ValueObjects\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Email;
+use BotMirzaPanel\Shared\Contracts\RepositoryInterface;
 
 /**
  * User repository interface
