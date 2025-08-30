@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\ValueObjects;
+namespace BotMirzaPanel\Domain\ValueObjects;
 
-use App\Shared\Constants\AppConstants;
+use BotMirzaPanel\Shared\Constants\AppConstants;
 
 /**
  * Email value object
