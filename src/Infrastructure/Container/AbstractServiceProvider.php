@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Container;
+namespace BotMirzaPanel\Infrastructure\Container;
 
-use App\Shared\Contracts\ContainerInterface;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
 
 /**
  * Abstract Service Provider

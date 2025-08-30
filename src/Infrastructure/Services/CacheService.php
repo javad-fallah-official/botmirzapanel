@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Services;
+namespace BotMirzaPanel\Infrastructure\Services;
 
-use App\Shared\Contracts\CacheInterface;
+use BotMirzaPanel\Shared\Contracts\CacheInterface;
 use Psr\Log\LoggerInterface;
 use Redis;
 use Exception;

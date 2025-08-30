@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Contracts;
+namespace BotMirzaPanel\Shared\Contracts;
 
 /**
  * Base service interface for application services

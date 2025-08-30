@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Middleware;
+namespace BotMirzaPanel\Web\Middleware;
 
-use App\Infrastructure\Services\MemoryOptimizationService;
-use App\Infrastructure\Services\PerformanceMonitoringService;
-use App\Shared\Contracts\CacheInterface;
+use BotMirzaPanel\Infrastructure\Services\MemoryOptimizationService;
+use BotMirzaPanel\Infrastructure\Services\PerformanceMonitoringService;
+use BotMirzaPanel\Shared\Contracts\CacheInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

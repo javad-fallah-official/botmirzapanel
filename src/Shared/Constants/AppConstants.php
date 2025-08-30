@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Constants;
+namespace BotMirzaPanel\Shared\Constants;
 
 /**
  * Application-wide constants

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Providers;
+namespace BotMirzaPanel\Infrastructure\Providers;
 
-use App\Infrastructure\Container\AbstractServiceProvider;
-use App\Shared\Contracts\ContainerInterface;
-use App\Application\Services\UserApplicationService;
-use App\Application\Services\PaymentApplicationService;
-use App\Domain\Services\UserDomainService;
-use App\Domain\Services\PaymentDomainService;
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\Repositories\PaymentRepositoryInterface;
-use App\Shared\Contracts\EventDispatcherInterface;
+use BotMirzaPanel\Infrastructure\Container\AbstractServiceProvider;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
+use BotMirzaPanel\Application\Services\UserApplicationService;
+use BotMirzaPanel\Application\Services\PaymentApplicationService;
+use BotMirzaPanel\Domain\Services\UserDomainService;
+use BotMirzaPanel\Domain\Services\PaymentDomainService;
+use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
+use BotMirzaPanel\Domain\Repositories\PaymentRepositoryInterface;
+use BotMirzaPanel\Shared\Contracts\EventDispatcherInterface;
 
 /**
  * Application Service Provider

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Providers;
+namespace BotMirzaPanel\Infrastructure\Providers;
 
-use App\Infrastructure\Services\AssetOptimizationService;
-use App\Infrastructure\Services\CacheService;
-use App\Infrastructure\Services\DatabaseOptimizationService;
-use App\Infrastructure\Services\MemoryOptimizationService;
-use App\Infrastructure\Services\PerformanceMonitoringService;
-use App\Shared\Contracts\CacheInterface;
-use App\Shared\DependencyInjection\ServiceProviderInterface;
-use App\Shared\DependencyInjection\Container;
+use BotMirzaPanel\Infrastructure\Services\AssetOptimizationService;
+use BotMirzaPanel\Infrastructure\Services\CacheService;
+use BotMirzaPanel\Infrastructure\Services\DatabaseOptimizationService;
+use BotMirzaPanel\Infrastructure\Services\MemoryOptimizationService;
+use BotMirzaPanel\Infrastructure\Services\PerformanceMonitoringService;
+use BotMirzaPanel\Shared\Contracts\CacheInterface;
+use BotMirzaPanel\Shared\DependencyInjection\ServiceProviderInterface;
+use BotMirzaPanel\Shared\DependencyInjection\Container;
 
 /**
  * Performance Service Provider

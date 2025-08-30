@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Container;
+namespace BotMirzaPanel\Infrastructure\Container;
 
-use App\Shared\Contracts\ContainerInterface;
-use App\Shared\Exceptions\ServiceException;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
+use BotMirzaPanel\Shared\Exceptions\ServiceException;
 use ReflectionClass;
 use ReflectionParameter;
 use ReflectionException;

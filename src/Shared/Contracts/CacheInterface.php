@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Contracts;
+namespace BotMirzaPanel\Shared\Contracts;
 
 /**
  * Cache Interface

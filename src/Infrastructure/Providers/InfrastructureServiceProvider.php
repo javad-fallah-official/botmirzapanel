@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Providers;
+namespace BotMirzaPanel\Infrastructure\Providers;
 
-use App\Infrastructure\Container\AbstractServiceProvider;
-use App\Shared\Contracts\ContainerInterface;
-use App\Infrastructure\Database\DatabaseManager;
-use App\Infrastructure\Config\ConfigManager;
-use App\Infrastructure\Cache\CacheManager;
-use App\Infrastructure\Logging\Logger;
-use App\Shared\Contracts\DatabaseInterface;
-use App\Shared\Contracts\ConfigInterface;
-use App\Shared\Contracts\CacheInterface;
-use App\Shared\Contracts\LoggerInterface;
+use BotMirzaPanel\Infrastructure\Container\AbstractServiceProvider;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
+use BotMirzaPanel\Database\DatabaseManager;
+use BotMirzaPanel\Config\ConfigManager;
+use BotMirzaPanel\Infrastructure\Services\CacheService;
+use BotMirzaPanel\Shared\Contracts\CacheInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Redis;
 
 /**
  * Infrastructure Service Provider
@@ -22,40 +21,22 @@ use App\Shared\Contracts\LoggerInterface;
 class InfrastructureServiceProvider extends AbstractServiceProvider
 {
     protected array $provides = [
-        DatabaseInterface::class,
-        ConfigInterface::class,
-        CacheInterface::class,
-        LoggerInterface::class,
         DatabaseManager::class,
         ConfigManager::class,
-        CacheManager::class,
-        Logger::class,
+        CacheService::class,
+        CacheInterface::class,
+        LoggerInterface::class,
+        'config',
+        'cache',
+        'logger',
     ];
 
     public function register(ContainerInterface $container): void
     {
-        // Register core infrastructure services
-        $this->registerDatabase($container);
         $this->registerConfig($container);
-        $this->registerCache($container);
+        $this->registerDatabase($container);
         $this->registerLogger($container);
-    }
-
-    private function registerDatabase(ContainerInterface $container): void
-    {
-        // Database Manager
-        $this->singleton(
-            $container,
-            DatabaseManager::class,
-            function (ContainerInterface $c) {
-                return new DatabaseManager(
-                    $c->get(ConfigInterface::class)
-                );
-            }
-        );
-
-        // Database Interface
-        $this->alias($container, DatabaseInterface::class, DatabaseManager::class);
+        $this->registerCache($container);
     }
 
     private function registerConfig(ContainerInterface $container): void
@@ -69,60 +50,100 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
             }
         );
 
-        // Config Interface
-        $this->alias($container, ConfigInterface::class, ConfigManager::class);
+        // Alias for easy access
+        $this->alias($container, 'config', ConfigManager::class);
     }
 
-    private function registerCache(ContainerInterface $container): void
+    private function registerDatabase(ContainerInterface $container): void
     {
-        // Cache Manager
+        // Database Manager
         $this->singleton(
             $container,
-            CacheManager::class,
+            DatabaseManager::class,
             function (ContainerInterface $c) {
-                return new CacheManager(
-                    $c->get(ConfigInterface::class)
+                return new DatabaseManager(
+                    $c->get(ConfigManager::class)
                 );
             }
         );
-
-        // Cache Interface
-        $this->alias($container, CacheInterface::class, CacheManager::class);
     }
 
     private function registerLogger(ContainerInterface $container): void
     {
-        // Logger
+        // Bind PSR logger to NullLogger by default
         $this->singleton(
             $container,
-            Logger::class,
+            LoggerInterface::class,
+            function () {
+                return new NullLogger();
+            }
+        );
+
+        // Alias for convenience
+        $this->alias($container, 'logger', LoggerInterface::class);
+    }
+
+    private function registerCache(ContainerInterface $container): void
+    {
+        // Redis connection (lazy singleton)
+        $container->register(
+            Redis::class,
+            function () use ($container) {
+                $redis = new Redis();
+
+                // Attempt connection using config if available
+                try {
+                    /** @var ConfigManager $config */
+                    $config = $container->get(ConfigManager::class);
+                    $host = $config->get('cache.redis.host', '127.0.0.1');
+                    $port = (int) $config->get('cache.redis.port', 6379);
+                    $timeout = (float) ($config->get('cache.redis.timeout', 1.5));
+                    $db = (int) $config->get('cache.redis.db', 0);
+                    $password = $config->get('cache.redis.password');
+
+                    $redis->connect($host, $port, $timeout);
+                    if (!empty($password)) {
+                        $redis->auth($password);
+                    }
+                    if ($db > 0) {
+                        $redis->select($db);
+                    }
+                } catch (\Throwable $e) {
+                    // Swallow connection errors; CacheService will handle and logger will record via NullLogger
+                }
+
+                return $redis;
+            },
+            true
+        );
+
+        // Cache Service
+        $this->singleton(
+            $container,
+            CacheService::class,
             function (ContainerInterface $c) {
-                return new Logger(
-                    $c->get(ConfigInterface::class)
+                /** @var ConfigManager $config */
+                $config = $c->get(ConfigManager::class);
+                $cacheConfig = (array) $config->get('cache', []);
+
+                return new CacheService(
+                    $c->get(Redis::class),
+                    $c->get(LoggerInterface::class),
+                    $cacheConfig
                 );
             }
         );
 
-        // Logger Interface
-        $this->alias($container, LoggerInterface::class, Logger::class);
+        // Bind CacheInterface to CacheService and provide common aliases
+        $this->alias($container, CacheInterface::class, CacheService::class);
+        $this->alias($container, 'cache', CacheInterface::class);
     }
 
     public function boot(ContainerInterface $container): void
     {
-        // Initialize database connections
-        $database = $container->get(DatabaseInterface::class);
-        $database->connect();
-
-        // Initialize cache connections if needed
-        $cache = $container->get(CacheInterface::class);
-        if (method_exists($cache, 'connect')) {
-            $cache->connect();
-        }
-
-        // Configure logger
-        $logger = $container->get(LoggerInterface::class);
-        if (method_exists($logger, 'initialize')) {
-            $logger->initialize();
-        }
+        // Trigger initialization of core services if needed
+        $container->get(DatabaseManager::class);
+        $container->get(CacheService::class);
+        $container->get(LoggerInterface::class);
     }
 }

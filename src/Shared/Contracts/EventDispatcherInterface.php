@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Contracts;
+namespace BotMirzaPanel\Shared\Contracts;
 
 /**
  * Event dispatcher interface for decoupled communication between components

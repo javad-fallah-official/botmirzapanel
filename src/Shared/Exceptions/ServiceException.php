@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Exceptions;
+namespace BotMirzaPanel\Shared\Exceptions;
 
 /**
  * Exception thrown when service operations fail

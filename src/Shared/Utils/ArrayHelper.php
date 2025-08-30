@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Utils;
+namespace BotMirzaPanel\Shared\Utils;
 
 /**
  * Array manipulation utilities
