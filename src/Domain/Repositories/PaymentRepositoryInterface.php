@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Repositories;
+namespace BotMirzaPanel\Domain\Repositories;
 
-use App\Domain\Entities\Payment;
-use App\Domain\ValueObjects\UserId;
-use App\Domain\ValueObjects\Money;
-use App\Shared\Contracts\RepositoryInterface;
+use BotMirzaPanel\Domain\Entities\Payment;
+use BotMirzaPanel\Domain\ValueObjects\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Money;
+use BotMirzaPanel\Shared\Contracts\RepositoryInterface;
 
 /**
  * Payment repository interface
