@@ -13,6 +13,10 @@ use BotMirzaPanel\Shared\Contracts\CacheInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Redis;
+use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
+use BotMirzaPanel\Domain\Repositories\PaymentRepositoryInterface;
+use BotMirzaPanel\Infrastructure\Repositories\UserRepository;
+use BotMirzaPanel\Infrastructure\Repositories\PaymentRepository;
 
 /**
  * Infrastructure Service Provider
@@ -26,6 +30,8 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
         CacheService::class,
         CacheInterface::class,
         LoggerInterface::class,
+        UserRepositoryInterface::class,
+        PaymentRepositoryInterface::class,
         'config',
         'cache',
         'logger',
@@ -37,6 +43,7 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
         $this->registerDatabase($container);
         $this->registerLogger($container);
         $this->registerCache($container);
+        $this->registerRepositories($container);
     }
 
     private function registerConfig(ContainerInterface $container): void
@@ -66,6 +73,9 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
                 );
             }
         );
+
+        // Alias for convenience
+        $this->alias($container, 'database', DatabaseManager::class);
     }
 
     private function registerLogger(ContainerInterface $container): void
@@ -137,6 +147,30 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
         // Bind CacheInterface to CacheService and provide common aliases
         $this->alias($container, CacheInterface::class, CacheService::class);
         $this->alias($container, 'cache', CacheInterface::class);
+    }
+
+    private function registerRepositories(ContainerInterface $container): void
+    {
+        // Bind domain repository interfaces to concrete infrastructure implementations
+        $this->singleton(
+            $container,
+            UserRepositoryInterface::class,
+            function (ContainerInterface $c) {
+                return new UserRepository(
+                    $c->get(DatabaseManager::class)
+                );
+            }
+        );
+
+        $this->singleton(
+            $container,
+            PaymentRepositoryInterface::class,
+            function (ContainerInterface $c) {
+                return new PaymentRepository(
+                    $c->get(DatabaseManager::class)
+                );
+            }
+        );
     }
 
     public function boot(ContainerInterface $container): void
