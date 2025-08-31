@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Presentation\Console\Commands;
 
-use BotMirzaPanel\Application\Queries\User\GetAllUsersQuery;
-use BotMirzaPanel\Application\Queries\User\GetAllUsersQueryHandler;
+use BotMirzaPanel\Application\Queries\User\GetUsersQuery;
+use BotMirzaPanel\Application\Queries\User\GetUsersQueryHandler;
 use BotMirzaPanel\Application\Queries\User\GetUserByIdQuery;
 use BotMirzaPanel\Application\Queries\User\GetUserByIdQueryHandler;
 use BotMirzaPanel\Application\Commands\User\CreateUserCommand;
@@ -16,7 +16,7 @@ use BotMirzaPanel\Application\Commands\User\DeleteUserCommand;
 use BotMirzaPanel\Application\Commands\User\DeleteUserCommandHandler;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\User\Username;
-use BotMirzaPanel\Domain\ValueObjects\User\Email;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\User\TelegramId;
 use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
@@ -111,13 +111,13 @@ HELP;
      */
     private function listUsers(): int
     {
-        $query = new GetAllUsersQuery(
-            $this->getOption('limit', 50),
-            $this->getOption('offset', 0),
-            $this->getOption('status')
+        $query = new GetUsersQuery(
+            limit: $this->getOption('limit', 50),
+            offset: $this->getOption('offset', 0),
+            filters: $this->getOption('status') ? ['status' => $this->getOption('status')] : []
         );
         
-        $handler = $this->getService(GetAllUsersQueryHandler::class);
+        $handler = $this->getService(GetUsersQueryHandler::class);
         $users = $handler->handle($query);
         
         if (empty($users)) {
