@@ -32,6 +32,9 @@ use BotMirzaPanel\Domain\Events\EventDispatcher;
 use BotMirzaPanel\Infrastructure\Events\InMemoryEventDispatcher;
 use BotMirzaPanel\Infrastructure\Events\EventServiceProvider;
 
+// External Services
+use BotMirzaPanel\Infrastructure\External\ExternalServiceProvider;
+
 /**
  * Service container for dependency injection and service management
  * Handles both legacy and new domain-driven services during migration
@@ -119,6 +122,10 @@ class ServiceContainer
         
         // Initialize event listeners
         $this->get(EventServiceProvider::class)->register();
+        
+        // External services
+        $this->singleton(ExternalServiceProvider::class, fn() => new ExternalServiceProvider($this));
+        $this->get(ExternalServiceProvider::class)->register();
     }
     
     /**
