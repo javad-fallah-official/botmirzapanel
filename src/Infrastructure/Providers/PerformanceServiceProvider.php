@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Infrastructure\Providers;
 
+use BotMirzaPanel\Infrastructure\Container\AbstractServiceProvider;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
+use BotMirzaPanel\Config\ConfigManager;
 use BotMirzaPanel\Infrastructure\Services\AssetOptimizationService;
-use BotMirzaPanel\Infrastructure\Services\CacheService;
 use BotMirzaPanel\Infrastructure\Services\DatabaseOptimizationService;
 use BotMirzaPanel\Infrastructure\Services\MemoryOptimizationService;
 use BotMirzaPanel\Infrastructure\Services\PerformanceMonitoringService;
 use BotMirzaPanel\Shared\Contracts\CacheInterface;
-use BotMirzaPanel\Shared\DependencyInjection\ServiceProviderInterface;
-use BotMirzaPanel\Shared\DependencyInjection\Container;
 
 /**
  * Performance Service Provider
@@ -19,11 +19,22 @@ use BotMirzaPanel\Shared\DependencyInjection\Container;
  * Registers all performance optimization services with the DI container.
  * Configures services based on environment and performance configuration.
  */
-class PerformanceServiceProvider implements ServiceProviderInterface
+class PerformanceServiceProvider extends AbstractServiceProvider
 {
-    public function register(Container $container): void
+    protected array $provides = [
+        DatabaseOptimizationService::class,
+        MemoryOptimizationService::class,
+        AssetOptimizationService::class,
+        PerformanceMonitoringService::class,
+        'database.optimization',
+        'memory.optimization',
+        'asset.optimization',
+        'performance.monitoring',
+    ];
+
+    public function register(ContainerInterface $container): void
     {
-        $this->registerCacheService($container);
+        // Register optimization services
         $this->registerDatabaseOptimizationService($container);
         $this->registerMemoryOptimizationService($container);
         $this->registerAssetOptimizationService($container);
@@ -31,84 +42,95 @@ class PerformanceServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * Register cache service
-     */
-    private function registerCacheService(Container $container): void
-    {
-        $container->bind(CacheInterface::class, function (Container $container) {
-            $config = $container->get('config');
-            $performanceConfig = $config['performance'] ?? [];
-            $cacheConfig = $performanceConfig['caching'] ?? [];
-            
-            return new CacheService($cacheConfig);
-        });
-
-        $container->alias('cache', CacheInterface::class);
-        $container->alias(CacheService::class, CacheInterface::class);
-    }
-
-    /**
      * Register database optimization service
      */
-    private function registerDatabaseOptimizationService(Container $container): void
+    private function registerDatabaseOptimizationService(ContainerInterface $container): void
     {
-        $container->bind(DatabaseOptimizationService::class, function (Container $container) {
-            $config = $container->get('config');
-            $performanceConfig = $config['performance'] ?? [];
-            $databaseConfig = $performanceConfig['database'] ?? [];
-            
-            return new DatabaseOptimizationService($databaseConfig);
-        });
+        $this->singleton(
+            $container,
+            DatabaseOptimizationService::class,
+            function (ContainerInterface $c) {
+                /** @var ConfigManager $config */
+                $config = $c->get(ConfigManager::class);
+                $databaseConfig = (array) $config->get('performance.database', []);
 
-        $container->alias('database.optimization', DatabaseOptimizationService::class);
+                return new DatabaseOptimizationService(
+                    $c->get(CacheInterface::class),
+                    $databaseConfig
+                );
+            }
+        );
+
+        $this->alias($container, 'database.optimization', DatabaseOptimizationService::class);
     }
 
     /**
      * Register memory optimization service
      */
-    private function registerMemoryOptimizationService(Container $container): void
+    private function registerMemoryOptimizationService(ContainerInterface $container): void
     {
-        $container->bind(MemoryOptimizationService::class, function (Container $container) {
-            $config = $container->get('config');
-            $performanceConfig = $config['performance'] ?? [];
-            $memoryConfig = $performanceConfig['memory'] ?? [];
-            
-            return new MemoryOptimizationService($memoryConfig);
-        });
+        $this->singleton(
+            $container,
+            MemoryOptimizationService::class,
+            function (ContainerInterface $c) {
+                /** @var ConfigManager $config */
+                $config = $c->get(ConfigManager::class);
+                $memoryConfig = (array) $config->get('performance.memory', []);
 
-        $container->alias('memory.optimization', MemoryOptimizationService::class);
+                return new MemoryOptimizationService(
+                    $c->get(CacheInterface::class),
+                    $memoryConfig
+                );
+            }
+        );
+
+        $this->alias($container, 'memory.optimization', MemoryOptimizationService::class);
     }
 
     /**
      * Register asset optimization service
      */
-    private function registerAssetOptimizationService(Container $container): void
+    private function registerAssetOptimizationService(ContainerInterface $container): void
     {
-        $container->bind(AssetOptimizationService::class, function (Container $container) {
-            $config = $container->get('config');
-            $performanceConfig = $config['performance'] ?? [];
-            $assetConfig = $performanceConfig['assets'] ?? [];
-            
-            return new AssetOptimizationService($assetConfig);
-        });
+        $this->singleton(
+            $container,
+            AssetOptimizationService::class,
+            function (ContainerInterface $c) {
+                /** @var ConfigManager $config */
+                $config = $c->get(ConfigManager::class);
+                $assetConfig = (array) $config->get('performance.assets', []);
 
-        $container->alias('asset.optimization', AssetOptimizationService::class);
+                return new AssetOptimizationService(
+                    $c->get(CacheInterface::class),
+                    $assetConfig
+                );
+            }
+        );
+
+        $this->alias($container, 'asset.optimization', AssetOptimizationService::class);
     }
 
     /**
      * Register performance monitoring service
      */
-    private function registerPerformanceMonitoringService(Container $container): void
+    private function registerPerformanceMonitoringService(ContainerInterface $container): void
     {
-        $container->bind(PerformanceMonitoringService::class, function (Container $container) {
-            $config = $container->get('config');
-            $performanceConfig = $config['performance'] ?? [];
-            $monitoringConfig = $performanceConfig['monitoring'] ?? [];
-            
-            return new PerformanceMonitoringService($monitoringConfig);
-        });
+        $this->singleton(
+            $container,
+            PerformanceMonitoringService::class,
+            function (ContainerInterface $c) {
+                /** @var ConfigManager $config */
+                $config = $c->get(ConfigManager::class);
+                $monitoringConfig = (array) $config->get('performance.monitoring', []);
 
-        $container->alias('performance.monitoring', PerformanceMonitoringService::class);
+                return new PerformanceMonitoringService(
+                    $c->get(CacheInterface::class),
+                    $monitoringConfig
+                );
+            }
+        );
+
+        $this->alias($container, 'performance.monitoring', PerformanceMonitoringService::class);
     }
 
     /**
@@ -116,12 +138,13 @@ class PerformanceServiceProvider implements ServiceProviderInterface
      * 
      * Initialize services that need to be started immediately.
      */
-    public function boot(Container $container): void
+    public function boot(ContainerInterface $container): void
     {
-        $config = $container->get('config');
-        $performanceConfig = $config['performance'] ?? [];
-        $environment = $config['app']['env'] ?? 'production';
-        $envConfig = $performanceConfig['environment'][$environment] ?? [];
+        /** @var ConfigManager $config */
+        $config = $container->get(ConfigManager::class);
+
+        $environment = (string) $config->get('app.env', 'production');
+        $envConfig = (array) $config->get("performance.environment.{$environment}", []);
 
         // Initialize memory optimization if enabled
         if ($envConfig['enable_memory_optimization'] ?? false) {
@@ -131,17 +154,18 @@ class PerformanceServiceProvider implements ServiceProviderInterface
 
         // Initialize performance monitoring if enabled
         if ($envConfig['enable_monitoring'] ?? false) {
-            $monitoringService = $container->get(PerformanceMonitoringService::class);
+            $container->get(PerformanceMonitoringService::class);
             // Start monitoring background processes if needed
         }
 
         // Warm up cache if enabled
-        if ($performanceConfig['caching']['warming']['enabled'] ?? false) {
+        $warmingEnabled = (bool) $config->get('performance.caching.warming.enabled', false);
+        if ($warmingEnabled) {
             $cacheService = $container->get(CacheInterface::class);
-            $preloadData = $performanceConfig['caching']['warming']['preload_data'] ?? [];
-            
-            foreach ($preloadData as $key => $value) {
-                $cacheService->warmUp($key, $value);
+            $preloadData = (array) $config->get('performance.caching.warming.preload_data', []);
+
+            if (!empty($preloadData)) {
+                $cacheService->warmUp($preloadData);
             }
         }
     }
@@ -152,13 +176,10 @@ class PerformanceServiceProvider implements ServiceProviderInterface
     public function provides(): array
     {
         return [
-            CacheInterface::class,
-            CacheService::class,
             DatabaseOptimizationService::class,
             MemoryOptimizationService::class,
             AssetOptimizationService::class,
             PerformanceMonitoringService::class,
-            'cache',
             'database.optimization',
             'memory.optimization',
             'asset.optimization',
