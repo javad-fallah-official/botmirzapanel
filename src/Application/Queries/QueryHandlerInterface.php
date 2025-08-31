@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Application\Queries;
+namespace BotMirzaPanel\Application\Queries;
 
 /**
  * Base interface for all query handlers in the CQRS pattern

@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BotMirzaPanel\Domain\Services\User;
 
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;

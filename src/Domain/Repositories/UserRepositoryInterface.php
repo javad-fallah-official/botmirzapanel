@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Domain\Repositories;
 
-use BotMirzaPanel\Domain\Entities\User;
-use BotMirzaPanel\Domain\ValueObjects\UserId;
-use BotMirzaPanel\Domain\ValueObjects\Email;
+use BotMirzaPanel\Domain\Entities\User\User;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Shared\Contracts\RepositoryInterface;
 
 /**

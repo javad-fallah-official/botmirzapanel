@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Application\Commands\User;
+namespace BotMirzaPanel\Application\Commands\User;
 
-use Application\Commands\CommandHandlerInterface;
-use Application\Commands\CommandInterface;
-use Domain\Repositories\UserRepositoryInterface;
-use Domain\Services\User\UserService;
-use Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Application\Commands\CommandHandlerInterface;
+use BotMirzaPanel\Application\Commands\CommandInterface;
+use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
+use BotMirzaPanel\Domain\Services\User\UserService;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 
 /**
  * Handler for deleting a user
@@ -34,12 +34,12 @@ final readonly class DeleteUserCommandHandler implements CommandHandlerInterface
         }
 
         if ($command->softDelete) {
-            // Use domain service for soft delete
-            $deletedUser = $this->userService->softDeleteUser($user);
-            $this->userRepository->save($deletedUser);
+            // Soft delete by deactivating the user
+            $user->deactivate();
+            $this->userRepository->save($user);
         } else {
             // Hard delete
-            $this->userRepository->delete($userId);
+            $this->userRepository->delete($user);
         }
 
         return true;

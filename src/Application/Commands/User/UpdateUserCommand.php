@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Application\Commands\User;
+namespace BotMirzaPanel\Application\Commands\User;
 
-use Application\Commands\CommandInterface;
+use BotMirzaPanel\Application\Commands\CommandInterface;
 
 /**
  * Command to update an existing user

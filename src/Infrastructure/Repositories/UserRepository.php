@@ -7,9 +7,10 @@ namespace BotMirzaPanel\Infrastructure\Repositories;
 use BotMirzaPanel\Database\BaseRepository;
 use BotMirzaPanel\Database\DatabaseManager;
 use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
-use BotMirzaPanel\Domain\ValueObjects\UserId;
-use BotMirzaPanel\Domain\ValueObjects\Email;
-use BotMirzaPanel\Domain\Entities\User;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
+use BotMirzaPanel\Domain\Entities\User\User;
+use BotMirzaPanel\Infrastructure\Database\UserEntityMapper;
 
 /**
  * Infrastructure User Repository
@@ -17,31 +18,36 @@ use BotMirzaPanel\Domain\Entities\User;
  */
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
-    public function __construct(DatabaseManager $db)
+    private UserEntityMapper $mapper;
+
+    public function __construct(DatabaseManager $db, UserEntityMapper $mapper)
     {
         parent::__construct($db, 'users');
+        $this->mapper = $mapper;
         $this->fillable = [
-            'id', 'username', 'first_name', 'last_name', 'email', 'phone_number',
-            'language_code', 'is_bot', 'balance', 'status', 'state', 'is_admin',
-            'is_banned', 'referred_by', 'referral_code', 'created_at', 'updated_at'
+            'id', 'telegram_chat_id', 'username', 'first_name', 'last_name', 'email', 'phone_number',
+            'password_hash', 'balance', 'status', 'is_premium', 'referred_by', 'referral_code', 
+            'created_at', 'updated_at'
         ];
     }
 
     // Finder methods
     public function findById(UserId $id): ?User
     {
-        // TODO: Map database row to User entity once entities are available
-        return null;
+        $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE id = ?", [$id->getValue()]);
+        return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
     public function findByUsername(string $username): ?User
     {
-        return null;
+        $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE username = ?", [$username]);
+        return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
     public function findByEmail(Email $email): ?User
     {
-        return null;
+        $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE email = ?", [$email->getValue()]);
+        return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
     public function findByReferralCode(string $referralCode): ?User
@@ -77,24 +83,56 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     // Persistence methods
     public function save(User $user): User
     {
-        // TODO: Implement persistence once mapping is defined
+        $data = $this->mapper->toDatabaseArray($user);
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        
+        $existingUser = $this->db->selectOne("SELECT id FROM {$this->table} WHERE id = ?", [$user->getId()->getValue()]);
+        
+        if ($existingUser) {
+            // Update existing user
+            unset($data['id'], $data['created_at']); // Don't update ID or created_at
+            $this->db->update($this->table, $data, ['id' => $user->getId()->getValue()]);
+        } else {
+            // Insert new user
+            $data['created_at'] = $data['created_at'] ?? date('Y-m-d H:i:s');
+            $this->db->insert($this->table, $data);
+        }
+        
         return $user;
     }
 
     public function delete(User $user): void
     {
-        // TODO: Implement delete logic when entity mapping is ready
+        $this->db->delete($this->table, ['id' => $user->getId()->getValue()]);
     }
 
     // Existence checks
     public function usernameExists(string $username, ?UserId $excludeId = null): bool
     {
-        return false;
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE username = ?";
+        $params = [$username];
+        
+        if ($excludeId) {
+            $query .= " AND id != ?";
+            $params[] = $excludeId->getValue();
+        }
+        
+        $result = $this->db->selectOne($query, $params);
+        return ($result['count'] ?? 0) > 0;
     }
 
     public function emailExists(Email $email, ?UserId $excludeId = null): bool
     {
-        return false;
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE email = ?";
+        $params = [$email->getValue()];
+        
+        if ($excludeId) {
+            $query .= " AND id != ?";
+            $params[] = $excludeId->getValue();
+        }
+        
+        $result = $this->db->selectOne($query, $params);
+        return ($result['count'] ?? 0) > 0;
     }
 
     public function referralCodeExists(string $referralCode, ?UserId $excludeId = null): bool

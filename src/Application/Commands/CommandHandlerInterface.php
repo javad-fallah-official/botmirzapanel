@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Application\Commands;
+namespace BotMirzaPanel\Application\Commands;
 
 /**
  * Base interface for all command handlers in the CQRS pattern

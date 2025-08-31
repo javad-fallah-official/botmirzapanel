@@ -14,12 +14,15 @@ abstract class AbstractDomainEvent implements DomainEvent
     private string $eventId;
     private DateTime $occurredAt;
     private int $version;
+    protected string $aggregateId;
+    protected array $payload;
 
     public function __construct(int $version = 1)
     {
         $this->eventId = $this->generateEventId();
         $this->occurredAt = new DateTime();
         $this->version = $version;
+        $this->payload = [];
     }
 
     public function getEventId(): string
@@ -66,10 +69,24 @@ abstract class AbstractDomainEvent implements DomainEvent
     }
 
     /**
+     * Get the aggregate ID
+     */
+    public function getAggregateId(): string
+    {
+        return $this->aggregateId;
+    }
+    
+    /**
+     * Get the event payload
+     */
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+    
+    /**
      * Abstract methods that must be implemented by concrete events
      */
     abstract public function getEventName(): string;
-    abstract public function getAggregateId(): string;
     abstract public function getAggregateType(): string;
-    abstract public function getPayload(): array;
 }

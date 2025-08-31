@@ -68,14 +68,41 @@ use BotMirzaPanel\Infrastructure\Providers\ApplicationServiceProvider;
 use BotMirzaPanel\Infrastructure\Providers\DomainServiceProvider;
 use BotMirzaPanel\Infrastructure\Providers\PerformanceServiceProvider;
 use BotMirzaPanel\Database\DatabaseManager;
+use BotMirzaPanel\Config\ConfigManager;
+use BotMirzaPanel\Infrastructure\Container\ServiceContainer;
 use BotMirzaPanel\Telegram\TelegramBot;
 use BotMirzaPanel\Payment\PaymentService;
 use BotMirzaPanel\Panel\PanelService;
 use BotMirzaPanel\User\UserService;
+use BotMirzaPanel\Infrastructure\Adapters\LegacyUserServiceAdapter;
 use BotMirzaPanel\Cron\CronService;
 
 /**
- * Initialize the DI container and register service providers
+ * Initialize configuration and database
+ */
+$configFile = BOTMIRZAPANEL_ROOT . '/config.php';
+if (!file_exists($configFile)) {
+    throw new Exception('Configuration file not found: ' . $configFile);
+}
+
+$configData = require $configFile;
+$configManager = new ConfigManager($configData);
+
+$databaseManager = new DatabaseManager(
+    $configManager->get('database.host', 'localhost'),
+    $configManager->get('database.username', 'root'),
+    $configManager->get('database.password', ''),
+    $configManager->get('database.database', 'botmirzapanel'),
+    $configManager->get('database.port', 3306)
+);
+
+/**
+ * Initialize the new service container for domain-driven architecture
+ */
+$serviceContainer = new ServiceContainer($configManager, $databaseManager);
+
+/**
+ * Initialize the legacy DI container for backward compatibility
  */
 $container = new \BotMirzaPanel\Infrastructure\Container\Container();
 
@@ -124,32 +151,32 @@ function config(string $key = null, $default = null)
 
 function db(): DatabaseManager
 {
-    global $container;
-    return $container->get('database');
+    global $serviceContainer;
+    return $serviceContainer->get(DatabaseManager::class);
 }
 
 function telegram(): TelegramBot
 {
-    global $container;
-    return $container->get('telegram');
+    global $serviceContainer;
+    return $serviceContainer->getTelegramBot();
 }
 
-function userService(): UserService
+function userService(): LegacyUserServiceAdapter
 {
-    global $container;
-    return $container->get('user');
+    global $serviceContainer;
+    return $serviceContainer->getUserService();
 }
 
 function panelService(): PanelService
 {
-    global $container;
-    return $container->get('panel');
+    global $serviceContainer;
+    return $serviceContainer->getPanelService();
 }
 
 function paymentService(): PaymentService
 {
-    global $container;
-    return $container->get('payment');
+    global $serviceContainer;
+    return $serviceContainer->getPaymentService();
 }
 
 function cronService(): CronService
