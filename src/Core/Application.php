@@ -9,6 +9,7 @@ use BotMirzaPanel\Payment\PaymentService;
 use BotMirzaPanel\Panel\PanelService;
 use BotMirzaPanel\User\UserService;
 use BotMirzaPanel\Cron\CronService;
+use BotMirzaPanel\Shared\Contracts\ContainerInterface;
 
 /**
  * Main application class that orchestrates all modules
@@ -25,9 +26,9 @@ class Application
     private CronService $cron;
     private array $services = [];
     // Store reference to container for lazy/fallback resolution
-    private $container;
+    private ContainerInterface $container;
 
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
         $this->initializeServices();
