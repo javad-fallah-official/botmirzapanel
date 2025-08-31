@@ -63,7 +63,10 @@ if (file_exists(BOTMIRZAPANEL_ROOT . '/functions.php')) {
 
 // Import required classes
 use BotMirzaPanel\Core\Application;
-use BotMirzaPanel\Config\ConfigManager;
+use BotMirzaPanel\Infrastructure\Providers\InfrastructureServiceProvider;
+use BotMirzaPanel\Infrastructure\Providers\ApplicationServiceProvider;
+use BotMirzaPanel\Infrastructure\Providers\DomainServiceProvider;
+use BotMirzaPanel\Infrastructure\Providers\PerformanceServiceProvider;
 use BotMirzaPanel\Database\DatabaseManager;
 use BotMirzaPanel\Telegram\TelegramBot;
 use BotMirzaPanel\Payment\PaymentService;
@@ -72,123 +75,30 @@ use BotMirzaPanel\User\UserService;
 use BotMirzaPanel\Cron\CronService;
 
 /**
- * Service Container for Dependency Injection
+ * Initialize the DI container and register service providers
  */
-class ServiceContainer
-{
-    private array $services = [];
-    private array $singletons = [];
-    
-    /**
-     * Register a service
-     */
-    public function register(string $name, callable $factory, bool $singleton = true): void
-    {
-        $this->services[$name] = $factory;
-        if ($singleton) {
-            $this->singletons[$name] = true;
-        }
-    }
-    
-    /**
-     * Get a service
-     */
-    public function get(string $name): mixed
-    {
-        if (!isset($this->services[$name])) {
-            throw new \Exception("Service '{$name}' not found");
-        }
-        
-        // Return singleton instance if already created
-        if (isset($this->singletons[$name]) && isset($this->instances[$name])) {
-            return $this->instances[$name];
-        }
-        
-        // Create new instance
-        $instance = $this->services[$name]($this);
-        
-        // Store singleton instance
-        if (isset($this->singletons[$name])) {
-            $this->instances[$name] = $instance;
-        }
-        
-        return $instance;
-    }
-    
-    /**
-     * Check if service exists
-     */
-    public function has(string $name): bool
-    {
-        return isset($this->services[$name]);
-    }
-    
-    private array $instances = [];
+$container = new \BotMirzaPanel\Infrastructure\Container\Container();
+
+// Register service providers
+$providers = [
+    new InfrastructureServiceProvider(),
+    new ApplicationServiceProvider(),
+    new DomainServiceProvider(),
+    new PerformanceServiceProvider(),
+];
+
+foreach ($providers as $provider) {
+    $container->registerProvider($provider);
 }
 
-/**
- * Initialize the service container
- */
-$container = new ServiceContainer();
-
-// Register ConfigManager
-$container->register('config', function($container) {
-    return new ConfigManager();
-});
-
-// Register DatabaseManager
-$container->register('database', function($container) {
-    return new DatabaseManager($container->get('config'));
-});
-
-// Register UserService
-$container->register('user', function($container) {
-    return new UserService(
-        $container->get('config'),
-        $container->get('database')
-    );
-});
-
-// Register PanelService
-$container->register('panel', function($container) {
-    return new PanelService(
-        $container->get('config'),
-        $container->get('database')
-    );
-});
-
-// Register PaymentService
-$container->register('payment', function($container) {
-    return new PaymentService(
-        $container->get('config'),
-        $container->get('database')
-    );
-});
-
-// Register TelegramBot
-$container->register('telegram', function($container) {
-    return new TelegramBot(
-        $container->get('config'),
-        $container->get('user'),
-        $container->get('panel'),
-        $container->get('payment')
-    );
-});
-
-// Register CronService
-$container->register('cron', function($container) {
-    return new CronService(
-        $container->get('config'),
-        $container->get('database'),
-        $container->get('user'),
-        $container->get('panel'),
-        $container->get('telegram')
-    );
-});
+// Boot service providers (after all registrations)
+foreach ($providers as $provider) {
+    $provider->boot($container);
+}
 
 // Register Application
-$container->register('app', function($container) {
-    return new Application($container);
+$container->singleton('app', function($c) {
+    return new Application($c);
 });
 
 /**
