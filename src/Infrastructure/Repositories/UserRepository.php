@@ -8,6 +8,7 @@ use BotMirzaPanel\Database\BaseRepository;
 use BotMirzaPanel\Database\DatabaseManager;
 use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\User\TelegramId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Infrastructure\Database\UserEntityMapper;
@@ -47,6 +48,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function findByEmail(Email $email): ?User
     {
         $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE email = ?", [$email->getValue()]);
+        return $row ? $this->mapper->toDomainEntity($row) : null;
+    }
+
+    public function findByTelegramId(TelegramId $telegramId): ?User
+    {
+        $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE telegram_chat_id = ?", [$telegramId->getValue()]);
         return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 

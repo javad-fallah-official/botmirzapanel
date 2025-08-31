@@ -6,6 +6,7 @@ namespace BotMirzaPanel\Domain\Repositories;
 
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\User\TelegramId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Shared\Contracts\RepositoryInterface;
 
@@ -34,6 +35,11 @@ interface UserRepositoryInterface extends RepositoryInterface
      * Find user by referral code
      */
     public function findByReferralCode(string $referralCode): ?User;
+
+    /**
+     * Find user by Telegram ID
+     */
+    public function findByTelegramId(TelegramId $telegramId): ?User;
 
     /**
      * Find users by status
