@@ -7,9 +7,9 @@ use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentStatus;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentMethod;
-use BotMirzaPanel\Domain\Events\Payment\PaymentCreated;
-use BotMirzaPanel\Domain\Events\Payment\PaymentCompleted;
-use BotMirzaPanel\Domain\Events\Payment\PaymentFailed;
+use BotMirzaPanel\Domain\Events\PaymentCreated;
+use BotMirzaPanel\Domain\Events\PaymentCompleted;
+use BotMirzaPanel\Domain\Events\PaymentFailed;
 use DateTime;
 
 /**

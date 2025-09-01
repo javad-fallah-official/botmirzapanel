@@ -7,9 +7,9 @@ use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
-use BotMirzaPanel\Domain\Events\User\UserRegistered;
-use BotMirzaPanel\Domain\Events\User\UserActivated;
-use BotMirzaPanel\Domain\Events\User\UserDeactivated;
+use BotMirzaPanel\Domain\Events\UserRegistered;
+use BotMirzaPanel\Domain\Events\UserActivated;
+use BotMirzaPanel\Domain\Events\UserDeactivated;
 use DateTime;
 
 /**
