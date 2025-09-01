@@ -17,15 +17,36 @@ use BotMirzaPanel\Telegram\TelegramBot;
 use BotMirzaPanel\Domain\Services\User\UserService;
 use BotMirzaPanel\Domain\Services\User\UserValidationService;
 use BotMirzaPanel\Domain\Services\User\UserSecurityService;
+use BotMirzaPanel\Domain\Services\Payment\PaymentService as DomainPaymentService;
+use BotMirzaPanel\Domain\Services\Panel\PanelService as DomainPanelService;
+use BotMirzaPanel\Domain\Services\Subscription\SubscriptionService;
 
 // Infrastructure
 use BotMirzaPanel\Infrastructure\Repositories\UserRepository;
 use BotMirzaPanel\Infrastructure\Database\UserEntityMapper;
 use BotMirzaPanel\Infrastructure\Adapters\LegacyUserServiceAdapter;
+use BotMirzaPanel\Domain\Repositories\PaymentRepositoryInterface;
+use BotMirzaPanel\Domain\Repositories\PanelRepositoryInterface;
+use BotMirzaPanel\Domain\Repositories\SubscriptionRepositoryInterface;
+use BotMirzaPanel\Infrastructure\Repositories\PaymentRepository;
+use BotMirzaPanel\Infrastructure\Repositories\PanelRepository;
+use BotMirzaPanel\Infrastructure\Repositories\SubscriptionRepository;
 
 // Application Layer
 use BotMirzaPanel\Application\Commands\User\CreateUserCommandHandler;
 use BotMirzaPanel\Application\Queries\User\GetUserByIdQueryHandler;
+use BotMirzaPanel\Application\Commands\Payment\CreatePaymentCommandHandler;
+use BotMirzaPanel\Application\Commands\Payment\UpdatePaymentCommandHandler;
+use BotMirzaPanel\Application\Queries\Payment\GetPaymentByIdQueryHandler;
+use BotMirzaPanel\Application\Queries\Payment\GetPaymentsQueryHandler;
+use BotMirzaPanel\Application\Commands\Panel\CreatePanelCommandHandler;
+use BotMirzaPanel\Application\Commands\Panel\UpdatePanelCommandHandler;
+use BotMirzaPanel\Application\Queries\Panel\GetPanelByIdQueryHandler;
+use BotMirzaPanel\Application\Queries\Panel\GetPanelsQueryHandler;
+use BotMirzaPanel\Application\Commands\Subscription\CreateSubscriptionCommandHandler;
+use BotMirzaPanel\Application\Commands\Subscription\UpdateSubscriptionCommandHandler;
+use BotMirzaPanel\Application\Queries\Subscription\GetSubscriptionByIdQueryHandler;
+use BotMirzaPanel\Application\Queries\Subscription\GetSubscriptionsQueryHandler;
 
 // Events
 use BotMirzaPanel\Domain\Events\EventDispatcher;
@@ -69,6 +90,17 @@ class ServiceContainer
             $this->get(UserEntityMapper::class)
         ));
         
+        // Repository implementations
+        $this->singleton(PaymentRepositoryInterface::class, fn() => new PaymentRepository(
+            $this->get(DatabaseManager::class)
+        ));
+        $this->singleton(PanelRepositoryInterface::class, fn() => new PanelRepository(
+            $this->get(DatabaseManager::class)
+        ));
+        $this->singleton(SubscriptionRepositoryInterface::class, fn() => new SubscriptionRepository(
+            $this->get(DatabaseManager::class)
+        ));
+        
         // Domain services
         $this->singleton(UserValidationService::class, fn() => new UserValidationService(
             $this->get(UserRepository::class)
@@ -80,12 +112,71 @@ class ServiceContainer
             $this->get(UserSecurityService::class)
         ));
         
-        // Application layer
+        // Domain services for other entities
+        $this->singleton(DomainPaymentService::class, fn() => new DomainPaymentService(
+            $this->get(PaymentRepositoryInterface::class)
+        ));
+        $this->singleton(DomainPanelService::class, fn() => new DomainPanelService(
+            $this->get(PanelRepositoryInterface::class)
+        ));
+        $this->singleton(SubscriptionService::class, fn() => new SubscriptionService(
+            $this->get(SubscriptionRepositoryInterface::class)
+        ));
+        
+        // Application layer - User
         $this->singleton(CreateUserCommandHandler::class, fn() => new CreateUserCommandHandler(
             $this->get(UserService::class)
         ));
         $this->singleton(GetUserByIdQueryHandler::class, fn() => new GetUserByIdQueryHandler(
             $this->get(UserRepository::class)
+        ));
+        
+        // Application layer - Payment
+        $this->singleton(CreatePaymentCommandHandler::class, fn() => new CreatePaymentCommandHandler(
+            $this->get(PaymentRepositoryInterface::class),
+            $this->get(DomainPaymentService::class)
+        ));
+        $this->singleton(UpdatePaymentCommandHandler::class, fn() => new UpdatePaymentCommandHandler(
+            $this->get(PaymentRepositoryInterface::class),
+            $this->get(DomainPaymentService::class)
+        ));
+        $this->singleton(GetPaymentByIdQueryHandler::class, fn() => new GetPaymentByIdQueryHandler(
+            $this->get(PaymentRepositoryInterface::class)
+        ));
+        $this->singleton(GetPaymentsQueryHandler::class, fn() => new GetPaymentsQueryHandler(
+            $this->get(PaymentRepositoryInterface::class)
+        ));
+        
+        // Application layer - Panel
+        $this->singleton(CreatePanelCommandHandler::class, fn() => new CreatePanelCommandHandler(
+            $this->get(PanelRepositoryInterface::class),
+            $this->get(DomainPanelService::class)
+        ));
+        $this->singleton(UpdatePanelCommandHandler::class, fn() => new UpdatePanelCommandHandler(
+            $this->get(PanelRepositoryInterface::class),
+            $this->get(DomainPanelService::class)
+        ));
+        $this->singleton(GetPanelByIdQueryHandler::class, fn() => new GetPanelByIdQueryHandler(
+            $this->get(PanelRepositoryInterface::class)
+        ));
+        $this->singleton(GetPanelsQueryHandler::class, fn() => new GetPanelsQueryHandler(
+            $this->get(PanelRepositoryInterface::class)
+        ));
+        
+        // Application layer - Subscription
+        $this->singleton(CreateSubscriptionCommandHandler::class, fn() => new CreateSubscriptionCommandHandler(
+            $this->get(SubscriptionRepositoryInterface::class),
+            $this->get(SubscriptionService::class)
+        ));
+        $this->singleton(UpdateSubscriptionCommandHandler::class, fn() => new UpdateSubscriptionCommandHandler(
+            $this->get(SubscriptionRepositoryInterface::class),
+            $this->get(SubscriptionService::class)
+        ));
+        $this->singleton(GetSubscriptionByIdQueryHandler::class, fn() => new GetSubscriptionByIdQueryHandler(
+            $this->get(SubscriptionRepositoryInterface::class)
+        ));
+        $this->singleton(GetSubscriptionsQueryHandler::class, fn() => new GetSubscriptionsQueryHandler(
+            $this->get(SubscriptionRepositoryInterface::class)
         ));
         
         // Legacy services
