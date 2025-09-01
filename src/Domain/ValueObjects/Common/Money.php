@@ -177,6 +177,12 @@ class Money
         return new self(-$this->amount, $this->currency);
     }
 
+    /**
+     * Allocate money according to ratios
+     * 
+     * @param array<float> $ratios Allocation ratios
+     * @return array<Money> Allocated money objects
+     */
     public function allocate(array $ratios): array
     {
         if (empty($ratios)) {
@@ -231,6 +237,11 @@ class Money
         return $this->getFormattedAmount();
     }
 
+    /**
+     * Convert to array representation
+     * 
+     * @return array<string, mixed> Array representation
+     */
     public function toArray(): array
     {
         return [
