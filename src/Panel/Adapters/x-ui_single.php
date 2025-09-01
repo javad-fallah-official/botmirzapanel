@@ -99,7 +99,7 @@ curl_setopt_array($curl, array(
 ));
 $output = [];
 $response = json_decode(curl_exec($curl),true)['obj'];
-if(!isset($response))return [];
+if($response === false)return [];
 foreach ($response as $client){
     $client= json_decode($client['settings'],true)['clients'];
     foreach($client as $clinets){

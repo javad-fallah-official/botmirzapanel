@@ -22,7 +22,7 @@ function get_userwg($username, $namepanel)
         ),
     ));
     $response = json_decode(curl_exec($curl), true);
-    if (!isset($response)) return;
+    if ($response === false) return;
     $outputpear = array_merge($response['data']['configurationPeers'], $response['data']['configurationRestrictedPeers']);
     $output = [];
     foreach ($outputpear as $userinfo) {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Application\EventListeners;
 
-use BotMirzaPanel\Domain\Events\DomainEvent;
 use BotMirzaPanel\Domain\Events\UserCreated;
 use BotMirzaPanel\Domain\Events\UserProfileUpdated;
 use BotMirzaPanel\Domain\Events\UserBlocked;

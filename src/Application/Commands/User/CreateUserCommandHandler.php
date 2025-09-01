@@ -9,11 +9,7 @@ use BotMirzaPanel\Application\Commands\CommandInterface;
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
 use BotMirzaPanel\Domain\Services\User\UserService;
-use BotMirzaPanel\Domain\ValueObjects\User\UserId;
-use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
-use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
-use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 
 /**
  * Handler for creating a new user

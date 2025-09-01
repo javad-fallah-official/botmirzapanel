@@ -10,13 +10,7 @@ use BotMirzaPanel\User\UserService;
 use BotMirzaPanel\Payment\PaymentService;
 use BotMirzaPanel\Config\ConfigManager;
 use BotMirzaPanel\Database\DatabaseManager;
-use BotMirzaPanel\Application\Services\UserApplicationService;
-use BotMirzaPanel\Application\Services\PaymentApplicationService;
-use BotMirzaPanel\Domain\Services\UserDomainService;
-use BotMirzaPanel\Domain\Services\PaymentDomainService;
-use BotMirzaPanel\Domain\Repositories\UserRepositoryInterface;
-use BotMirzaPanel\Domain\Repositories\PaymentRepositoryInterface;
-use BotMirzaPanel\Shared\Contracts\EventDispatcherInterface;
+
 use BotMirzaPanel\Panel\PanelService;
 use BotMirzaPanel\Cron\CronService;
 use BotMirzaPanel\Telegram\TelegramBot;

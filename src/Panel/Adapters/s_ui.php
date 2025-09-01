@@ -21,7 +21,7 @@ function get_Clients_ui($username,$namepanel){
     ));
     $output = [];
     $response = curl_exec($curl);
-    if(!isset($response))return [];
+    if($response === false)return [];
     $response = json_decode($response,true);
     if(!$response['success'])return [];
     if(!isset($response['obj']['clients']))return array();
@@ -49,8 +49,8 @@ function GetClientsS_UI($username,$namepanel){
         ),
     ));
     $response = curl_exec($curl);
-    if(!isset($response))return [];
-    $response = json_decode(curl_exec($curl),true);
+    if($response === false)return [];
+    $response = json_decode($response,true);
     if(!$response['success'])return [];
     return $response['obj']['clients'][0];
     curl_close($curl);

@@ -17,7 +17,7 @@ function login_mikrotik($url,$username,$password){
 
 $response = curl_exec($curl);
 $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-if(!isset($response) || $httpcode != 200)return array("error" => 404);
+if($response === false || $httpcode != 200)return array("error" => 404);
 $response = json_decode($response,true);
 curl_close($curl);
 return $response;
@@ -49,7 +49,7 @@ function addUser_mikrotik($name_panel,$username,$password,$group){
 ));
 
 $response = curl_exec($curl);
-if(!isset($response))return json_encode(array("error" => 404));
+if($response === false)return json_encode(array("error" => 404));
 set_profile_mikrotik($name_panel,$username,$group);
 $response = json_decode($response,true);
 curl_close($curl);
@@ -80,7 +80,7 @@ function set_profile_mikrotik($name_panel,$username,$prof_name){
 ));
 
 $response = curl_exec($curl);
-if(!isset($response))return json_encode(array("error" => 404));
+if($response === false)return json_encode(array("error" => 404));
 $response = json_decode($response,true);
 curl_close($curl);
 return $response;
@@ -104,7 +104,7 @@ function GetUsermikrotik($name_panel,$username){
 ));
 
 $response = curl_exec($curl);
-if(!isset($response))return json_encode(array("error" => 404));
+if($response === false)return json_encode(array("error" => 404));
 $response = json_decode($response,true);
 curl_close($curl);
 return $response;
@@ -133,7 +133,7 @@ function GetUsermikrotik_volume($name_panel,$id){
 ));
 
 $response = curl_exec($curl);
-if(!isset($response))return json_encode(array("error" => 404));
+if($response === false)return json_encode(array("error" => 404));
 $response = json_decode($response,true)[0];
 curl_close($curl);
 return $response;
@@ -161,7 +161,7 @@ function deleteUser_mikrotik($name_panel,$username){
 ));
 
 $response = curl_exec($curl);
-if(!isset($response))return json_encode(array("error" => 404));
+if($response === false)return json_encode(array("error" => 404));
 $response = json_decode($response,true)[0];
 curl_close($curl);
 return $response;
