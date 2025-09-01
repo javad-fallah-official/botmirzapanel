@@ -10,7 +10,6 @@ use Domain\ValueObjects\Payment\PaymentStatus;
 use Domain\ValueObjects\Common\Money;
 use Domain\ValueObjects\User\UserId;
 use Domain\Exceptions\PaymentValidationException;
-use Domain\Exceptions\PaymentNotFoundException;
 use DateTimeImmutable;
 
 /**
@@ -20,6 +19,14 @@ class PaymentService
 {
     /**
      * Create a new payment with validation
+     * 
+     * @param UserId $userId User ID for the payment
+     * @param Money $amount Payment amount
+     * @param string $gateway Payment gateway identifier
+     * @param string|null $description Optional payment description
+     * @param array|null $metadata Optional payment metadata
+     * @return Payment Created payment entity
+     * @throws PaymentValidationException When validation fails
      */
     public function createPayment(
         UserId $userId,
@@ -47,6 +54,12 @@ class PaymentService
     
     /**
      * Process payment completion
+     * 
+     * @param Payment $payment Payment entity to complete
+     * @param string $transactionId Gateway transaction ID
+     * @param array|null $gatewayResponse Optional gateway response data
+     * @return Payment Completed payment entity
+     * @throws PaymentValidationException When payment cannot be completed
      */
     public function completePayment(
         Payment $payment,
@@ -66,6 +79,8 @@ class PaymentService
     
     /**
      * Fail a payment
+     * 
+     * @param Payment $payment Payment entity to fail
      */
     public function failPayment(
         Payment $payment,

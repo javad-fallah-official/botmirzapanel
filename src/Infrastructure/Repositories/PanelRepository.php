@@ -15,6 +15,12 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         parent::__construct($databaseManager, 'panels');
     }
 
+    /**
+     * Find panel by ID
+     * 
+     * @param PanelId $id Panel ID
+     * @return Panel|null Panel entity or null if not found
+     */
     public function findById(PanelId $id): ?Panel
     {
         $data = $this->findOneBy(['id' => $id->getValue()]);
@@ -22,6 +28,12 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         return $data ? $this->mapToEntity($data) : null;
     }
 
+    /**
+     * Find panels by user ID
+     * 
+     * @param string $userId User ID
+     * @return array<Panel> Array of panel entities
+     */
     public function findByUserId(string $userId): array
     {
         $data = $this->findBy(['user_id' => $userId]);
@@ -29,6 +41,12 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         return array_map([$this, 'mapToEntity'], $data);
     }
 
+    /**
+     * Save panel entity
+     * 
+     * @param Panel $panel Panel entity to save
+     * @return void
+     */
     public function save(Panel $panel): void
     {
         $data = $this->mapToArray($panel);
@@ -40,11 +58,26 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         }
     }
 
+    /**
+     * Delete panel by ID
+     * 
+     * @param PanelId $id Panel ID
+     * @return void
+     */
     public function delete(PanelId $id): void
     {
         $this->deleteBy(['id' => $id->getValue()]);
     }
 
+    /**
+     * Find panels by criteria
+     * 
+     * @param array<string, mixed> $criteria Search criteria
+     * @param array<string, string> $orderBy Order by fields
+     * @param int|null $limit Maximum results
+     * @param int|null $offset Results offset
+     * @return array<Panel> Panels matching criteria
+     */
     public function findBy(array $criteria, array $orderBy = [], int $limit = null, int $offset = null): array
     {
         $data = parent::findBy($criteria, $orderBy, $limit, $offset);
@@ -52,6 +85,12 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         return array_map([$this, 'mapToEntity'], $data);
     }
 
+    /**
+     * Map database array to Panel entity
+     * 
+     * @param array<string, mixed> $data Database row data
+     * @return Panel Panel entity
+     */
     private function mapToEntity(array $data): Panel
     {
         // This would need to be implemented based on the Panel entity structure
@@ -64,6 +103,12 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         );
     }
 
+    /**
+     * Map Panel entity to database array
+     * 
+     * @param Panel $panel Panel entity
+     * @return array<string, mixed> Database array
+     */
     private function mapToArray(Panel $panel): array
     {
         return [

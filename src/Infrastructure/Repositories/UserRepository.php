@@ -33,24 +33,49 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     // Finder methods
+    
+    /**
+     * Find user by ID
+     * 
+     * @param UserId $id User ID
+     * @return User|null User entity or null if not found
+     */
     public function findById(UserId $id): ?User
     {
         $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE id = ?", [$id->getValue()]);
         return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
+    /**
+     * Find user by username
+     * 
+     * @param string $username Username
+     * @return User|null User entity or null if not found
+     */
     public function findByUsername(string $username): ?User
     {
         $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE username = ?", [$username]);
         return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
+    /**
+     * Find user by email
+     * 
+     * @param Email $email Email value object
+     * @return User|null User entity or null if not found
+     */
     public function findByEmail(Email $email): ?User
     {
         $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE email = ?", [$email->getValue()]);
         return $row ? $this->mapper->toDomainEntity($row) : null;
     }
 
+    /**
+     * Find user by Telegram ID
+     * 
+     * @param TelegramId $telegramId Telegram ID value object
+     * @return User|null User entity or null if not found
+     */
     public function findByTelegramId(TelegramId $telegramId): ?User
     {
         $row = $this->db->selectOne("SELECT * FROM {$this->table} WHERE telegram_chat_id = ?", [$telegramId->getValue()]);
@@ -62,26 +87,66 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return null;
     }
 
+    /**
+     * Find users by status
+     * 
+     * @param string $status User status
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Users with specified status
+     */
     public function findByStatus(string $status, int $limit = 100, int $offset = 0): array
     {
         return [];
     }
 
+    /**
+     * Find users by role
+     * 
+     * @param string $role User role
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Users with specified role
+     */
     public function findByRole(string $role, int $limit = 100, int $offset = 0): array
     {
         return [];
     }
 
+    /**
+     * Find users referred by a specific user
+     * 
+     * @param UserId $referrerId Referrer user ID
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Referred users
+     */
     public function findReferredUsers(UserId $referrerId, int $limit = 100, int $offset = 0): array
     {
         return [];
     }
 
+    /**
+     * Find active users
+     * 
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Active users
+     */
     public function findActiveUsers(int $limit = 100, int $offset = 0): array
     {
         return [];
     }
 
+    /**
+     * Find users by date range
+     * 
+     * @param \DateTimeInterface $startDate Start date
+     * @param \DateTimeInterface $endDate End date
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Users in date range
+     */
     public function findByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate, int $limit = 100, int $offset = 0): array
     {
         return [];
@@ -148,6 +213,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     }
 
     // Statistics and utilities
+    
+    /**
+     * Get user statistics
+     * 
+     * @return array<string, mixed> User statistics
+     */
     public function getStatistics(): array
     {
         return [];
@@ -163,16 +234,37 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return 0;
     }
 
+    /**
+     * Find users with minimum balance
+     * 
+     * @param float $minBalance Minimum balance
+     * @param string $currency Currency code
+     * @return array<User> Users with minimum balance
+     */
     public function findUsersWithMinBalance(float $minBalance, string $currency = 'USD'): array
     {
         return [];
     }
 
+    /**
+     * Search users
+     * 
+     * @param string $query Search query
+     * @param int $limit Maximum results
+     * @param int $offset Results offset
+     * @return array<User> Search results
+     */
     public function search(string $query, int $limit = 50, int $offset = 0): array
     {
         return [];
     }
 
+    /**
+     * Get top referrers
+     * 
+     * @param int $limit Maximum results
+     * @return array<array{user: User, referral_count: int}> Top referrers
+     */
     public function getTopReferrers(int $limit = 10): array
     {
         return [];

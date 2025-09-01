@@ -7,7 +7,6 @@ namespace BotMirzaPanel\Domain\Services\User;
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\User\Username;
-use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
 
@@ -25,6 +24,15 @@ class UserService
 
     /**
      * Create a new user with validation and security checks
+     * 
+     * @param string $telegramId Telegram user ID
+     * @param string|null $username Optional username
+     * @param string|null $firstName Optional first name
+     * @param string|null $lastName Optional last name
+     * @param string|null $email Optional email address
+     * @param string|null $phoneNumber Optional phone number
+     * @return User Created user entity
+     * @throws \InvalidArgumentException When validation fails
      */
     public function createUser(
         string $telegramId,
@@ -73,6 +81,15 @@ class UserService
 
     /**
      * Update user profile information
+     * 
+     * @param User $user User entity to update
+     * @param string|null $username Optional new username
+     * @param string|null $firstName Optional new first name
+     * @param string|null $lastName Optional new last name
+     * @param string|null $email Optional new email address
+     * @param string|null $phoneNumber Optional new phone number
+     * @return User Updated user entity
+     * @throws \InvalidArgumentException When validation fails
      */
     public function updateUserProfile(
         User $user,
