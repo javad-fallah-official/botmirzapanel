@@ -15,7 +15,7 @@ class UserService
     private DatabaseManager $db;
     private array $rateLimitCache = [];
 
-    public function __construct(ConfigManager $config, DatabaseManager $db)
+    public function __construct(ConfigManager $config, DatabaseManager $db): void
     {
         $this->config = $config;
         $this->db = $db;

@@ -19,7 +19,7 @@ class InMemoryEventDispatcher implements EventDispatcher
     private array $listeners = [];
     private LoggerInterface $logger;
     
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(?LoggerInterface $logger = null): void
     {
         $this->logger = $logger ?? new NullLogger();
     }

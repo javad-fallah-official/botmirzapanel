@@ -21,7 +21,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     private UserEntityMapper $mapper;
 
-    public function __construct(DatabaseManager $db, UserEntityMapper $mapper)
+    public function __construct(DatabaseManager $db, UserEntityMapper $mapper): void
     {
         parent::__construct($db, 'users');
         $this->mapper = $mapper;

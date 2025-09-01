@@ -28,7 +28,7 @@ class Application
     // Store reference to container for lazy/fallback resolution
     private ContainerInterface $container;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container): void
     {
         $this->container = $container;
         $this->initializeServices();

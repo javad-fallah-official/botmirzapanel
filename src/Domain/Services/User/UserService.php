@@ -21,7 +21,7 @@ class UserService
     public function __construct(
         private UserValidationService $validationService,
         private UserSecurityService $securityService
-    ) {}
+    ): void {}
 
     /**
      * Create a new user with validation and security checks

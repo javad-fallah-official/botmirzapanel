@@ -18,7 +18,7 @@ class Router
     private array $routes = [];
     private array $middleware = [];
     
-    public function __construct(ServiceContainer $container)
+    public function __construct(ServiceContainer $container): void
     {
         $this->container = $container;
         $this->registerRoutes();

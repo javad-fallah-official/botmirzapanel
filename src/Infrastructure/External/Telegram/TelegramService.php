@@ -17,7 +17,7 @@ class TelegramService implements TelegramServiceInterface
     private string $apiUrl;
     private array $config;
 
-    public function __construct(string $botToken, array $config = [])
+    public function __construct(string $botToken, array $config = []): void
     {
         $this->botToken = $botToken;
         $this->apiUrl = 'https://api.telegram.org/bot' . $botToken;

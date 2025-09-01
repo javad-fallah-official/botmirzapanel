@@ -10,7 +10,7 @@ use BotMirzaPanel\Database\DatabaseManager;
 
 class PanelRepository extends BaseRepository implements PanelRepositoryInterface
 {
-    public function __construct(DatabaseManager $databaseManager)
+    public function __construct(DatabaseManager $databaseManager): void
     {
         parent::__construct($databaseManager, 'panels');
     }

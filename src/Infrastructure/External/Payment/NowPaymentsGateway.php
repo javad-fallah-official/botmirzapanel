@@ -19,7 +19,7 @@ class NowPaymentsGateway implements PaymentGatewayInterface
     private string $apiUrl = 'https://api.nowpayments.io/v1';
     private string $apiKey;
 
-    public function __construct(ConfigManager $config, array $settings)
+    public function __construct(ConfigManager $config, array $settings): void
     {
         $this->config = $config;
         $this->settings = $settings;

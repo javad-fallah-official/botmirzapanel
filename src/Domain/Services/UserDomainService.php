@@ -22,7 +22,7 @@ class UserDomainService
 {
     private UserRepositoryInterface $userRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository): void
     {
         $this->userRepository = $userRepository;
     }

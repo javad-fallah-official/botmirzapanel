@@ -11,7 +11,7 @@ use BotMirzaPanel\Database\DatabaseManager;
 
 class SubscriptionRepository extends BaseRepository implements SubscriptionRepositoryInterface
 {
-    public function __construct(DatabaseManager $databaseManager)
+    public function __construct(DatabaseManager $databaseManager): void
     {
         parent::__construct($databaseManager, 'subscriptions');
     }

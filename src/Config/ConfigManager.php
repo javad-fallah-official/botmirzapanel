@@ -11,7 +11,7 @@ class ConfigManager
     private array $config = [];
     private string $environment;
 
-    public function __construct(string $configPath = null)
+    public function __construct(string $configPath = null): void
     {
         $this->environment = $_ENV['APP_ENV'] ?? 'production';
         $this->loadConfiguration($configPath);

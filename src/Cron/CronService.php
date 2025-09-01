@@ -26,7 +26,7 @@ class CronService
         UserService $userService,
         PanelService $panelService,
         TelegramBot $telegram
-    ) {
+    ): void {
         $this->config = $config;
         $this->db = $db;
         $this->userService = $userService;

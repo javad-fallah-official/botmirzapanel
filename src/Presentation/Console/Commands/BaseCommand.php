@@ -17,7 +17,7 @@ abstract class BaseCommand
     protected array $arguments = [];
     protected array $options = [];
 
-    public function __construct(ServiceContainer $container)
+    public function __construct(ServiceContainer $container): void
     {
         $this->container = $container;
     }
