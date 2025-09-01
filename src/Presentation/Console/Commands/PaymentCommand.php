@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Presentation\Console\Commands;
 
-use BotMirzaPanel\Application\UseCases\Payment\Queries\GetAllPaymentsQuery;
-use BotMirzaPanel\Application\UseCases\Payment\Queries\GetPaymentByIdQuery;
-use BotMirzaPanel\Application\UseCases\Payment\Queries\GetPaymentStatsQuery;
-use BotMirzaPanel\Application\UseCases\Payment\Commands\CreatePaymentCommand;
-use BotMirzaPanel\Application\UseCases\Payment\Commands\UpdatePaymentStatusCommand;
+use BotMirzaPanel\Application\Queries\Payment\GetPaymentsQuery;
+use BotMirzaPanel\Application\Queries\Payment\GetPaymentByIdQuery;
+use BotMirzaPanel\Application\Commands\Payment\CreatePaymentCommand;
+use BotMirzaPanel\Application\Commands\Payment\UpdatePaymentCommand;
 use BotMirzaPanel\Infrastructure\External\Payment\PaymentGatewayFactoryInterface;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentStatus;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentMethod;

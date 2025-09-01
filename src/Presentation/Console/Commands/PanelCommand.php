@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Presentation\Console\Commands;
 
-use BotMirzaPanel\Application\UseCases\Panel\Queries\GetAllPanelsQuery;
-use BotMirzaPanel\Application\UseCases\Panel\Queries\GetPanelByIdQuery;
-use BotMirzaPanel\Application\UseCases\Panel\Commands\CreatePanelCommand;
-use BotMirzaPanel\Application\UseCases\Panel\Commands\UpdatePanelCommand;
-use BotMirzaPanel\Application\UseCases\Panel\Commands\DeletePanelCommand;
+use BotMirzaPanel\Application\Queries\Panel\GetPanelsQuery;
+use BotMirzaPanel\Application\Queries\Panel\GetPanelByIdQuery;
+use BotMirzaPanel\Application\Commands\Panel\CreatePanelCommand;
+use BotMirzaPanel\Application\Commands\Panel\UpdatePanelCommand;
 use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterFactoryInterface;
 use BotMirzaPanel\Domain\ValueObjects\Panel\PanelType;
 use BotMirzaPanel\Domain\ValueObjects\Panel\PanelStatus;
