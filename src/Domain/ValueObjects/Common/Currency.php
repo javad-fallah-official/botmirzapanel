@@ -33,7 +33,7 @@ class Currency extends ValueObject
         self::USDT => ['symbol' => '₮', 'name' => 'Tether'],
     ];
 
-    public function __construct(string $code)
+    public function __construct(string $code): void
     {
         $this->validate($code);
         $this->code = strtoupper($code);

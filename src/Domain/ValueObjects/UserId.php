@@ -12,7 +12,7 @@ class UserId
 {
     private int $value;
 
-    public function __construct(int $value)
+    public function __construct(int $value): void
     {
         if ($value <= 0) {
             throw new \InvalidArgumentException('User ID must be a positive integer');

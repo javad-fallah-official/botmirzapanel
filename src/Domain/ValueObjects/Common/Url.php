@@ -12,7 +12,7 @@ class Url
     private string $value;
     private array $components;
 
-    public function __construct(string $url)
+    public function __construct(string $url): void
     {
         $this->validate($url);
         $this->value = $url;

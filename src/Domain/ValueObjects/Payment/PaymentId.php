@@ -11,7 +11,7 @@ class PaymentId
 {
     private string $value;
 
-    public function __construct(string $id)
+    public function __construct(string $id): void
     {
         $this->validate($id);
         $this->value = $id;
