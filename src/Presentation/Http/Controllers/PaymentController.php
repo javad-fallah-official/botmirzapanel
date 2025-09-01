@@ -254,7 +254,7 @@ class PaymentController extends BaseController
     /**
      * Format payment data for API response
      */
-    private function formatPayment($payment): array
+    private function formatPayment(mixed $payment): array
     {
         return [
             'id' => $payment->getId()->getValue(),

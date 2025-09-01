@@ -81,7 +81,7 @@ class ApplicationException extends Exception
      * @param mixed $value
      * @return self
      */
-    public function addContext(string $key, $value): self
+    public function addContext(string $key, mixed $value): self
     {
         $this->context[$key] = $value;
         return $this;

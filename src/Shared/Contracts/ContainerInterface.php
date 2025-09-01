@@ -18,7 +18,7 @@ interface ContainerInterface
      * @param bool $singleton Whether to treat as singleton
      * @return void
      */
-    public function register(string $id, $service, bool $singleton = true): void;
+    public function register(string $id, mixed $service, bool $singleton = true): void;
 
     /**
      * Get a service from the container
@@ -27,7 +27,7 @@ interface ContainerInterface
      * @return mixed The service instance
      * @throws \InvalidArgumentException If service not found
      */
-    public function get(string $id);
+    public function get(string $id): mixed;
 
     /**
      * Check if a service is registered

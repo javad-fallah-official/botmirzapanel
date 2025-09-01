@@ -1,7 +1,7 @@
 <?php
 require_once 'functions.php';
 #-----------------------------#
-function token_panel($code_panel){
+function token_panel($code_panel): array {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     if($panel['datelogin'] != null){
         $date = json_decode($panel['datelogin'],true);
@@ -163,7 +163,7 @@ function adduser($username,$expire,$data_limit,$location,$is_test = false)
     return $response;
 }
 //----------------------------------
-function Get_System_Stats($location){
+function Get_System_Stats($location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url =  $marzban_list_get['url_panel'].'/api/system';
@@ -257,7 +257,7 @@ function revoke_sub($username,$location)
 
 //----------------------------------
 // Check if Marzban version is above 0.8.4
-function is_marzban_version_above_084($location) {
+function is_marzban_version_above_084($location): bool {
     try {
         $system_stats = Get_System_Stats($location);
         if (isset($system_stats['version'])) {
@@ -278,7 +278,7 @@ function is_marzban_version_above_084($location) {
 
 //----------------------------------
 // Get all available inbounds for a panel
-function get_all_inbounds($location) {
+function get_all_inbounds($location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = $marzban_list_get['url_panel'] . '/api/inbounds';
@@ -312,7 +312,7 @@ function get_all_inbounds($location) {
 
 //----------------------------------
 // NEW: Fetch inbound tags via /api/cores (more reliable for newer Marzban versions)
-function get_inbound_tags_from_cores($location) {
+function get_inbound_tags_from_cores($location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = rtrim($marzban_list_get['url_panel'], '/') . '/api/cores';
@@ -350,7 +350,7 @@ function get_inbound_tags_from_cores($location) {
 
 //----------------------------------
 // Helper: normalize groups response and return array of group objects
-function _extract_groups_array($existing_groups) {
+function _extract_groups_array($existing_groups): array {
     if (is_array($existing_groups)) {
         if (isset($existing_groups['groups']) && is_array($existing_groups['groups'])) {
             return $existing_groups['groups'];
@@ -366,7 +366,7 @@ function _extract_groups_array($existing_groups) {
 }
 
 // Helper: get single group by name (case-insensitive)
-function get_group_by_name($location, $group_name) {
+function get_group_by_name($location, $group_name): ?array {
     $existing_groups = get_groups($location);
     $groups_list = _extract_groups_array($existing_groups);
     foreach ($groups_list as $g) {
@@ -378,7 +378,7 @@ function get_group_by_name($location, $group_name) {
 }
 
 // Create a group in Marzban (updated to auto-populate inbound_tags like working sample)
-function create_group($location, $group_name, $inbound_tags = null) {
+function create_group($location, $group_name, $inbound_tags = null): array {
     // Avoid duplicate creation attempt if it already exists
     $existing = get_group_by_name($location, $group_name);
     if ($existing !== null) {
@@ -433,7 +433,7 @@ function create_group($location, $group_name, $inbound_tags = null) {
 
 //----------------------------------
 // Get all groups from Marzban
-function get_groups($location) {
+function get_groups($location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = $marzban_list_get['url_panel'] . '/api/groups';
@@ -456,7 +456,7 @@ function get_groups($location) {
 
 //----------------------------------
 // Ensure default groups exist for Marzban >0.8.4 (now passes inbound_tags) (updated to avoid duplicates)
-function ensure_default_groups($location) {
+function ensure_default_groups($location): array|bool {
     static $already_ran = array();
     if (isset($already_ran[$location])) { return array(); }
     $already_ran[$location] = true; // guard for repeated calls within same request

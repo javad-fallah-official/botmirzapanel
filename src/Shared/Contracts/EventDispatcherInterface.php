@@ -16,7 +16,7 @@ interface EventDispatcherInterface
      * @param mixed $eventData Data to pass to event listeners
      * @return void
      */
-    public function dispatch(string $eventName, $eventData = null): void;
+    public function dispatch(string $eventName, mixed $eventData = null): void;
 
     /**
      * Register an event listener

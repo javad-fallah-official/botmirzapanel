@@ -11,7 +11,7 @@ use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterInterface;
 class MikroTikAdapter implements PanelAdapterInterface
 {
     private array $config = [];
-    private $socket = null;
+    private mixed $socket = null;
     private bool $connected = false;
     private string $host;
     private int $port;

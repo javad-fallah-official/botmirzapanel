@@ -293,7 +293,7 @@ class Router
     /**
      * Return error response
      */
-    private function error(string $message, int $status = 500, string $details = null): array
+    private function error(string $message, int $status = 500, ?string $details = null): array
     {
         $body = [
             'error' => $message,

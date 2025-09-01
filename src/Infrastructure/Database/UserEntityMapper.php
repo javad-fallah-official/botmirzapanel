@@ -29,12 +29,12 @@ class UserEntityMapper
         
         $user = User::create(
             $userId,
-            $row['telegram_chat_id'] ?? '',
             $username,
-            $row['first_name'] ?? null,
-            $row['last_name'] ?? null,
             $email,
-            $phoneNumber
+            $phoneNumber,
+            $row['telegram_chat_id'] ?? null,
+            $row['first_name'] ?? null,
+            $row['last_name'] ?? null
         );
         
         // Set additional properties

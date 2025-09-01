@@ -213,7 +213,7 @@ class UserController extends BaseController
     /**
      * Format user data for API response
      */
-    private function formatUser($user): array
+    private function formatUser(mixed $user): array
     {
         return [
             'id' => $user->getId()->getValue(),

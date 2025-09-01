@@ -9,7 +9,7 @@ if (!function_exists('env')) {
     /**
      * Get environment variable with optional default
      */
-    function env(string $key, $default = null)
+    function env(string $key, mixed $default = null): mixed
     {
         $value = $_ENV[$key] ?? getenv($key);
         
@@ -404,7 +404,7 @@ if (!function_exists('arrayGet')) {
     /**
      * Get an item from an array using "dot" notation
      */
-    function arrayGet(array $array, string $key, $default = null)
+    function arrayGet(array $array, string $key, mixed $default = null): mixed
     {
         if (isset($array[$key])) {
             return $array[$key];
@@ -425,7 +425,7 @@ if (!function_exists('arraySet')) {
     /**
      * Set an array item to a given value using "dot" notation
      */
-    function arraySet(array &$array, string $key, $value): void
+    function arraySet(array &$array, string $key, mixed $value): void
     {
         $keys = explode('.', $key);
         

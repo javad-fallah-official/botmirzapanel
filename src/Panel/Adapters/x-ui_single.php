@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 
-function panel_login_cookie($code_panel){
+function panel_login_cookie($code_panel): array|string {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -26,7 +26,7 @@ curl_close($curl);
 return $response;
 }
 
-function login($code_panel,$verify = true){
+function login($code_panel,$verify = true): array|null {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     if($panel['datelogin'] != null && $verify){
         $date = json_decode($panel['datelogin'],true);
@@ -35,7 +35,7 @@ function login($code_panel,$verify = true){
         $start_date = time() - strtotime($date['time']);
         if($start_date <= 3000){
             file_put_contents('cookie.txt',$date['access_token']);
-            return;
+            return null;
         }
         }
     }
@@ -51,7 +51,7 @@ function login($code_panel,$verify = true){
 }
 
 
-function get_Client($username,$namepanel){
+function get_Client($username,$namepanel): array {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     login($marzban_list_get['id']);
@@ -77,7 +77,7 @@ curl_close($curl);
 return $response;
 unlink('cookie.txt');
 }
-function get_clinets($username,$namepanel){
+function get_clinets($username,$namepanel): array {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $login =login($marzban_list_get['id']);

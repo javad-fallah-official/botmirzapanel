@@ -17,7 +17,7 @@ class ArrayHelper
      * @param mixed $default Default value if key not found
      * @return mixed
      */
-    public static function get(array $array, string $key, $default = null)
+    public static function get(array $array, string $key, mixed $default = null): mixed
     {
         if (isset($array[$key])) {
             return $array[$key];
@@ -44,7 +44,7 @@ class ArrayHelper
      * @param mixed $value The value to set
      * @return void
      */
-    public static function set(array &$array, string $key, $value): void
+    public static function set(array &$array, string $key, mixed $value): void
     {
         $keys = explode('.', $key);
         $current = &$array;

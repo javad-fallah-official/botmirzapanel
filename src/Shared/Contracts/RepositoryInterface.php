@@ -17,7 +17,7 @@ interface RepositoryInterface
      * @param mixed $id The entity identifier
      * @return T|null The entity or null if not found
      */
-    public function findById($id): ?object;
+    public function findById(mixed $id): ?object;
 
     /**
      * Find all entities matching the given criteria

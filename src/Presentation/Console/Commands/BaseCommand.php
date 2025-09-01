@@ -72,7 +72,7 @@ abstract class BaseCommand
     /**
      * Get argument by name
      */
-    protected function getArgument(string $name, $default = null)
+    protected function getArgument(string $name, mixed $default = null): mixed
     {
         return $this->arguments[$name] ?? $default;
     }
@@ -80,7 +80,7 @@ abstract class BaseCommand
     /**
      * Get option by name
      */
-    protected function getOption(string $name, $default = null)
+    protected function getOption(string $name, mixed $default = null): mixed
     {
         return $this->options[$name] ?? $default;
     }
@@ -299,7 +299,7 @@ abstract class BaseCommand
     /**
      * Get service from container
      */
-    protected function getService(string $serviceClass)
+    protected function getService(string $serviceClass): mixed
     {
         return $this->container->get($serviceClass);
     }

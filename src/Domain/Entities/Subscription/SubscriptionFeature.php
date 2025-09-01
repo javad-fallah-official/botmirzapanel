@@ -17,7 +17,7 @@ class SubscriptionFeature
     private string $name;
     private string $description;
     private string $type; // 'boolean', 'numeric', 'text', 'json'
-    private $value;
+    private mixed $value;
     private ?int $limit; // for numeric features
     private bool $isEnabled;
     private array $metadata;

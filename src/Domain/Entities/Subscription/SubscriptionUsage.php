@@ -86,7 +86,7 @@ class SubscriptionUsage
         $this->metadata[$key] = $value;
     }
 
-    public function getMetadataValue(string $key, $default = null)
+    public function getMetadataValue(string $key, mixed $default = null): mixed
     {
         return $this->metadata[$key] ?? $default;
     }

@@ -186,22 +186,22 @@ class PanelConfiguration
         $this->updatedAt = new DateTime();
     }
 
-    public function getSetting(string $key, $default = null)
+    public function getSetting(string $key, mixed $default = null): mixed
     {
         return $this->settings[$key] ?? $default;
     }
 
-    public function getDefaultUserSetting(string $key, $default = null)
+    public function getDefaultUserSetting(string $key, mixed $default = null): mixed
     {
         return $this->defaultUserSettings[$key] ?? $default;
     }
 
-    public function getInboundSetting(string $key, $default = null)
+    public function getInboundSetting(string $key, mixed $default = null): mixed
     {
         return $this->inboundSettings[$key] ?? $default;
     }
 
-    public function getProtocolSetting(string $key, $default = null)
+    public function getProtocolSetting(string $key, mixed $default = null): mixed
     {
         return $this->protocolSettings[$key] ?? $default;
     }
