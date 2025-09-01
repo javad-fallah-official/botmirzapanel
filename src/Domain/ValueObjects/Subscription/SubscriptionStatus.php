@@ -31,7 +31,7 @@ class SubscriptionStatus
 
     private string $value;
 
-    private function __construct(string $status)
+    private function __construct(string $status): void
     {
         $this->validate($status);
         $this->value = $status;

@@ -35,7 +35,7 @@ class SubscriptionType
 
     private string $value;
 
-    private function __construct(string $type)
+    private function __construct(string $type): void
     {
         $this->validate($type);
         $this->value = $type;

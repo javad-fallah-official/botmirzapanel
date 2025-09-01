@@ -13,7 +13,7 @@ class PhoneNumber
     private string $countryCode;
     private string $nationalNumber;
 
-    public function __construct(string $phoneNumber, ?string $defaultCountryCode = null)
+    public function __construct(string $phoneNumber, ?string $defaultCountryCode = null): void
     {
         $this->parseAndValidate($phoneNumber, $defaultCountryCode);
     }

@@ -169,7 +169,7 @@ class PanelAdapterFactory
         'marzban' => 'panel.adapter.marzban'
     ];
 
-    public function __construct(ServiceContainer $container)
+    public function __construct(ServiceContainer $container): void
     {
         $this->container = $container;
     }

@@ -14,7 +14,7 @@ class Email
 {
     private string $value;
 
-    public function __construct(string $value)
+    public function __construct(string $value): void
     {
         $value = trim(strtolower($value));
         

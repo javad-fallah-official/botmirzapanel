@@ -13,7 +13,7 @@ class CreateUsersTable
 {
     private DatabaseManager $db;
     
-    public function __construct(DatabaseManager $db)
+    public function __construct(DatabaseManager $db): void
     {
         $this->db = $db;
     }
