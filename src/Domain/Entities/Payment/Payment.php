@@ -2,10 +2,11 @@
 
 namespace BotMirzaPanel\Domain\Entities\Payment;
 
-use BotMirzaPanel\Domain\ValueObjects\Common\Id;
+use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentId;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
-use BotMirzaPanel\Domain\ValueObjects\Payment\Money;
+use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentStatus;
+use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentMethod;
 use BotMirzaPanel\Domain\Events\Payment\PaymentCreated;
 use BotMirzaPanel\Domain\Events\Payment\PaymentCompleted;
 use BotMirzaPanel\Domain\Events\Payment\PaymentFailed;
@@ -19,7 +20,7 @@ use DateTime;
  */
 class Payment
 {
-    private Id $id;
+    private PaymentId $id;
     private UserId $userId;
     private Money $amount;
     private PaymentStatus $status;
@@ -39,24 +40,25 @@ class Payment
     private array $transactions = [];
 
     public function __construct(
-        Id $id,
+        PaymentId $id,
         UserId $userId,
         Money $amount,
-        string $gateway,
+        PaymentMethod $method,
+        PaymentStatus $status,
         ?string $description = null,
         ?array $metadata = null
     ) {
         $this->id = $id;
         $this->userId = $userId;
         $this->amount = $amount;
-        $this->status = PaymentStatus::pending();
-        $this->gateway = $gateway;
+        $this->status = $status;
+        $this->paymentMethod = $method;
         $this->description = $description;
         $this->metadata = $metadata ?? [];
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         
-        $this->addDomainEvent(new PaymentCreated($this->id, $this->userId, $this->amount, $this->gateway));
+        $this->addDomainEvent(new PaymentCreated($this->id, $this->userId, $this->amount, $method->getValue()));
     }
 
     public static function create(
