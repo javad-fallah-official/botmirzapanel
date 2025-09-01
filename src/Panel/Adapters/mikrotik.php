@@ -1,7 +1,16 @@
 <?php
 
+declare(strict_types=1);
 
-function login_mikrotik($url,$username,$password){
+/**
+ * Login to MikroTik panel
+ * 
+ * @param string $url Panel URL
+ * @param string $username Username
+ * @param string $password Password
+ * @return array<string, mixed> Login response or error
+ */
+function login_mikrotik(string $url, string $username, string $password): array {
     $curl = curl_init();
     curl_setopt_array($curl, array(
       CURLOPT_URL => $url.'/rest/system/resource',
@@ -24,7 +33,16 @@ return $response;
 
 }
 
-function addUser_mikrotik($name_panel,$username,$password,$group){
+/**
+ * Add user to MikroTik panel
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @param string $password Password
+ * @param string $group User group
+ * @return array<string, mixed>|string User creation response
+ */
+function addUser_mikrotik(string $name_panel, string $username, string $password, string $group): array|string {
     $panel = select("marzban_panel","*","name_panel",$name_panel,"select");
     $curl = curl_init();
     $data = array(
@@ -55,7 +73,15 @@ $response = json_decode($response,true);
 curl_close($curl);
 return $response;
 }
-function set_profile_mikrotik($name_panel,$username,$prof_name){
+/**
+ * Set profile for MikroTik user
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @param string $prof_name Profile name
+ * @return array<string, mixed>|string Profile setting response
+ */
+function set_profile_mikrotik(string $name_panel, string $username, string $prof_name): array|string {
     $panel = select("marzban_panel","*","name_panel",$name_panel,"select");
     $curl = curl_init();
     $data = array(
@@ -85,7 +111,14 @@ $response = json_decode($response,true);
 curl_close($curl);
 return $response;
 }
-function GetUsermikrotik($name_panel,$username){
+/**
+ * Get MikroTik user information
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @return array<string, mixed>|string User information
+ */
+function GetUsermikrotik(string $name_panel, string $username): array|string {
     $panel = select("marzban_panel","*","name_panel",$name_panel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -109,7 +142,14 @@ $response = json_decode($response,true);
 curl_close($curl);
 return $response;
 }
-function GetUsermikrotik_volume($name_panel,$id){
+/**
+ * Get MikroTik user volume information
+ * 
+ * @param string $name_panel Panel name
+ * @param string $id User ID
+ * @return array<string, mixed>|string User volume information
+ */
+function GetUsermikrotik_volume(string $name_panel, string $id): array|string {
     $panel = select("marzban_panel","*","name_panel",$name_panel,"select");
     $curl = curl_init();
     $data = array(
@@ -138,7 +178,14 @@ $response = json_decode($response,true)[0];
 curl_close($curl);
 return $response;
 }
-function deleteUser_mikrotik($name_panel,$username){
+/**
+ * Delete MikroTik user
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @return array<string, mixed>|string Deletion response
+ */
+function deleteUser_mikrotik(string $name_panel, string $username): array|string {
     $panel = select("marzban_panel","*","name_panel",$name_panel,"select");
     $curl = curl_init();
     $data = array(
