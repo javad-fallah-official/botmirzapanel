@@ -218,7 +218,7 @@ class UserController extends BaseController
         return [
             'id' => $user->getId()->getValue(),
             'username' => $user->getUsername()->getValue(),
-            'email' => $user->getEmail()->getValue(),
+            'email' => $user->getEmail()?->getValue(),
             'telegram_id' => $user->getTelegramId()->getValue(),
             'status' => $user->getStatus()->getValue(),
             'balance' => [

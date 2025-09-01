@@ -37,7 +37,7 @@ final readonly class UpdateUserCommandHandler implements CommandHandlerInterface
         }
 
         // Check for email conflicts
-        if ($command->email && (!$user->getEmail() || $command->email !== $user->getEmail()->getValue())) {
+        if ($command->email && (!$user->getEmail() || $command->email !== $user->getEmail()?->getValue())) {
             if ($this->userRepository->emailExists(Email::fromString($command->email), $userId)) {
                 throw new \DomainException('User with this email already exists');
             }

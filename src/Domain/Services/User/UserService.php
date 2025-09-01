@@ -101,7 +101,7 @@ class UserService
         // Validate and update email if changed
         if ($email !== null) {
             $emailVO = Email::fromString($email);
-            if (!$user->getEmail() || !$user->getEmail()->equals($emailVO)) {
+            if (!$user->getEmail() || !$user->getEmail()?->equals($emailVO)) {
                 $this->validationService->validateEmailUniqueness($emailVO);
                 $user->updateEmail($emailVO);
             }
@@ -110,7 +110,7 @@ class UserService
         // Validate and update phone if changed
         if ($phoneNumber !== null) {
             $phoneVO = PhoneNumber::fromString($phoneNumber);
-            if (!$user->getPhoneNumber() || !$user->getPhoneNumber()->equals($phoneVO)) {
+            if (!$user->getPhoneNumber() || !$user->getPhoneNumber()?->equals($phoneVO)) {
                 $this->validationService->validatePhoneUniqueness($phoneVO);
                 $user->updatePhoneNumber($phoneVO);
             }

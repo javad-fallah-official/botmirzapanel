@@ -199,7 +199,7 @@ class CommandHandler
             $profileText = "👤 **Your Profile**\n\n";
             $profileText .= "🆔 User ID: `{$user->getId()->getValue()}`\n";
             $profileText .= "👤 Username: {$user->getUsername()->getValue()}\n";
-            $profileText .= "📧 Email: {$user->getEmail()->getValue()}\n";
+            $profileText .= "📧 Email: {$user->getEmail()?->getValue()}\n";
             $profileText .= "📱 Telegram ID: `{$user->getTelegramId()->getValue()}`\n";
             $profileText .= "📊 Status: {$user->getStatus()->getValue()}\n";
             $profileText .= "💰 Balance: {$user->getBalance()->getAmount()} {$user->getBalance()->getCurrency()->getCode()}\n";

@@ -48,7 +48,7 @@ function get_Clientalireza($username,$namepanel){
     ));
     $output = [];
     $response = curl_exec($curl);
-    if(!isset($response))return;
+    if($response === false)return;
     $response = json_decode($response,true)['obj'];
     curl_close($curl);
     return $response;
@@ -76,8 +76,10 @@ function get_clinetsalireza($username,$namepanel){
         CURLOPT_COOKIEFILE => 'cookie.txt',
     ));
     $output = [];
-    $response = json_decode(curl_exec($curl),true)['obj'];
-    if(!isset($response))return;
+    $curlResponse = curl_exec($curl);
+    if($curlResponse === false)return;
+    $response = json_decode($curlResponse,true)['obj'];
+    if($response === null)return;
     foreach ($response as $client){
         $client= json_decode($client['settings'],true)['clients'];
         foreach($client as $clinets){
@@ -100,7 +102,7 @@ function addClientalireza_singel($namepanel, $usernameac, $Expire,$Total, $Uuid,
         $username_ac = $usernameac . $random_number;
     }
     $login  = loginalireza($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
-    if(!isset($login))return;
+    if($login === null)return;
     $config = array(
         "id" => intval($marzban_list_get['inboundid']),
         'settings' => json_encode(array(

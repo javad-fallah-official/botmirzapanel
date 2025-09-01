@@ -132,7 +132,7 @@ HELP;
                 return [
                     'id' => $user->getId()->getValue(),
                     'username' => $user->getUsername()->getValue(),
-                    'email' => $user->getEmail()->getValue(),
+                    'email' => $user->getEmail()?->getValue(),
                     'telegram_id' => $user->getTelegramId()->getValue(),
                     'status' => $user->getStatus()->getValue(),
                     'balance' => $user->getBalance()->getAmount(),
@@ -148,7 +148,7 @@ HELP;
                 $rows[] = [
                     $user->getId()->getValue(),
                     $user->getUsername()->getValue(),
-                    $user->getEmail()->getValue(),
+                    $user->getEmail()?->getValue(),
                     $user->getTelegramId()->getValue(),
                     $user->getStatus()->getValue(),
                     $user->getBalance()->getAmount() . ' ' . $user->getBalance()->getCurrency()->getCode(),
@@ -190,7 +190,7 @@ HELP;
             $this->output(json_encode([
                 'id' => $user->getId()->getValue(),
                 'username' => $user->getUsername()->getValue(),
-                'email' => $user->getEmail()->getValue(),
+                'email' => $user->getEmail()?->getValue(),
                 'telegram_id' => $user->getTelegramId()->getValue(),
                 'status' => $user->getStatus()->getValue(),
                 'balance' => $user->getBalance()->getAmount(),
@@ -202,7 +202,7 @@ HELP;
             $this->output("User Details:");
             $this->output("  ID: {$user->getId()->getValue()}");
             $this->output("  Username: {$user->getUsername()->getValue()}");
-            $this->output("  Email: {$user->getEmail()->getValue()}");
+            $this->output("  Email: {$user->getEmail()?->getValue()}");
             $this->output("  Telegram ID: {$user->getTelegramId()->getValue()}");
             $this->output("  Status: {$user->getStatus()->getValue()}");
             $this->output("  Balance: {$user->getBalance()->getAmount()} {$user->getBalance()->getCurrency()->getCode()}");
@@ -276,7 +276,7 @@ HELP;
         $this->output('Updating user (press Enter to keep current value)...');
         
         $username = $this->ask('Username', $user->getUsername()->getValue());
-        $email = $this->ask('Email', $user->getEmail()->getValue());
+        $email = $this->ask('Email', $user->getEmail()?->getValue());
         
         try {
             $command = new UpdateUserCommand(
