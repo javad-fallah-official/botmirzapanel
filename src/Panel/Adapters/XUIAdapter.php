@@ -2,6 +2,8 @@
 
 namespace BotMirzaPanel\Panel\Adapters;
 
+use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterInterface;
+
 /**
  * X-UI panel adapter
  * Handles integration with X-UI panel

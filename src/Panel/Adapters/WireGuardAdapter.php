@@ -2,6 +2,8 @@
 
 namespace BotMirzaPanel\Panel\Adapters;
 
+use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterInterface;
+
 /**
  * WireGuard Dashboard adapter
  * Handles integration with WireGuard Dashboard

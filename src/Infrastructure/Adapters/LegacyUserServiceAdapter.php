@@ -7,7 +7,7 @@ namespace BotMirzaPanel\Infrastructure\Adapters;
 use BotMirzaPanel\Domain\Entities\User\User;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\User\Username;
-use BotMirzaPanel\Domain\ValueObjects\User\Email;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;

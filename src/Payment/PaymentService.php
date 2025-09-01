@@ -4,7 +4,7 @@ namespace BotMirzaPanel\Payment;
 
 use BotMirzaPanel\Config\ConfigManager;
 use BotMirzaPanel\Database\DatabaseManager;
-use BotMirzaPanel\Payment\Gateways\PaymentGatewayInterface;
+use BotMirzaPanel\Infrastructure\External\Payment\PaymentGatewayInterface;
 
 /**
  * Payment service that manages all payment operations

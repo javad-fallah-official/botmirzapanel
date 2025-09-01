@@ -12,7 +12,7 @@ use BotMirzaPanel\Application\Queries\User\GetUserByTelegramIdQuery;
 use BotMirzaPanel\Application\Queries\User\GetUserByTelegramIdQueryHandler;
 use BotMirzaPanel\Domain\ValueObjects\User\TelegramId;
 use BotMirzaPanel\Domain\ValueObjects\User\Username;
-use BotMirzaPanel\Domain\ValueObjects\User\Email;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\Common\Currency;
 

@@ -4,7 +4,7 @@ namespace BotMirzaPanel\Panel;
 
 use BotMirzaPanel\Config\ConfigManager;
 use BotMirzaPanel\Database\DatabaseManager;
-use BotMirzaPanel\Panel\Adapters\PanelAdapterInterface;
+use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterInterface;
 use BotMirzaPanel\Panel\Adapters\MarzbanAdapter;
 use BotMirzaPanel\Panel\Adapters\MikroTikAdapter;
 use BotMirzaPanel\Panel\Adapters\XUIAdapter;

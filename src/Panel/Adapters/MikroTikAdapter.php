@@ -2,6 +2,8 @@
 
 namespace BotMirzaPanel\Panel\Adapters;
 
+use BotMirzaPanel\Infrastructure\External\Panel\PanelAdapterInterface;
+
 /**
  * MikroTik RouterOS adapter
  * Handles integration with MikroTik RouterOS API
