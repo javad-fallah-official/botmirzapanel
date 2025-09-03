@@ -154,6 +154,11 @@ class LegacyUserServiceAdapter
     
     /**
      * Delegate all other method calls to legacy service
+     * 
+     * @param string $method Method name
+     * @param array $arguments Method arguments
+     * @return mixed Method result
+     * @throws \BadMethodCallException When method does not exist
      */
     public function __call(string $method, array $arguments)
     {

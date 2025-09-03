@@ -137,6 +137,13 @@ function app(): Application
     return $container->get('app');
 }
 
+/**
+ * Get configuration value or configuration manager
+ * 
+ * @param string|null $key Configuration key
+ * @param mixed $default Default value if key not found
+ * @return mixed Configuration value or configuration manager
+ */
 function config(string $key = null, $default = null)
 {
     global $container;
@@ -223,17 +230,34 @@ set_error_handler(function($severity, $message, $file, $line) {
 /**
  * Backward compatibility functions
  */
+/**
+ * Get configuration value (backward compatibility)
+ * 
+ * @param string $key Configuration key
+ * @param mixed $default Default value if key not found
+ * @return mixed Configuration value
+ */
 function getConfig($key, $default = null)
 {
     return config($key, $default);
 }
 
-function getDatabase()
+/**
+ * Get database manager (backward compatibility)
+ * 
+ * @return DatabaseManager Database manager instance
+ */
+function getDatabase(): DatabaseManager
 {
     return db();
 }
 
-function getTelegram()
+/**
+ * Get Telegram bot instance (backward compatibility)
+ * 
+ * @return TelegramBot Telegram bot instance
+ */
+function getTelegram(): TelegramBot
 {
     return telegram();
 }

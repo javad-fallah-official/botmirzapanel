@@ -238,6 +238,10 @@ class ServiceContainer
     
     /**
      * Get a service instance
+     * 
+     * @param string $abstract Service identifier
+     * @return mixed Service instance
+     * @throws \InvalidArgumentException When service is not found
      */
     public function get(string $abstract)
     {
