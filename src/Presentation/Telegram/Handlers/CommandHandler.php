@@ -37,6 +37,10 @@ class CommandHandler
      */
     public function handle(array $message): void
     {
+        if (!isset($message['from']['id'], $message['chat']['id'])) {
+            return; // Invalid message structure
+        }
+        
         $userId = $message['from']['id'];
         $chatId = $message['chat']['id'];
         $text = $message['text'] ?? '';

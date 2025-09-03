@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Helper functions for BotMirzaPanel
  * These functions provide convenient access to common operations

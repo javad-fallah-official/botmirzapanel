@@ -31,6 +31,11 @@ class CallbackHandler
      */
     public function handle(array $callbackQuery): void
     {
+        if (!isset($callbackQuery['from']['id'], $callbackQuery['message']['chat']['id'], 
+                   $callbackQuery['message']['message_id'], $callbackQuery['data'], $callbackQuery['id'])) {
+            return; // Invalid callback query structure
+        }
+        
         $userId = $callbackQuery['from']['id'];
         $chatId = $callbackQuery['message']['chat']['id'];
         $messageId = $callbackQuery['message']['message_id'];

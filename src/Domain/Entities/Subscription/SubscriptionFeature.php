@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BotMirzaPanel\Domain\Entities\Subscription;
 
 use BotMirzaPanel\Domain\ValueObjects\Subscription\SubscriptionId;
@@ -81,7 +83,7 @@ class SubscriptionFeature
         return new self($subscriptionId, $name, $description, 'json', $value);
     }
 
-    public function updateValue($value): void
+    public function updateValue(mixed $value): void
     {
         $this->value = $this->validateValue($value, $this->type);
         $this->updatedAt = new DateTime();
@@ -194,6 +196,14 @@ class SubscriptionFeature
         return $type;
     }
 
+    /**
+     * Validate feature value based on type
+     * 
+     * @param mixed $value Value to validate
+     * @param string $type Feature type
+     * @return mixed Validated value
+     * @throws \InvalidArgumentException When value is invalid for the type
+     */
     private function validateValue($value, string $type)
     {
         switch ($type) {
@@ -246,6 +256,11 @@ class SubscriptionFeature
         return $this->type;
     }
 
+    /**
+     * Get feature value
+     * 
+     * @return mixed Feature value
+     */
     public function getValue()
     {
         return $this->value;

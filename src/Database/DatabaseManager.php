@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BotMirzaPanel\Database;
 
 use BotMirzaPanel\Config\ConfigManager;

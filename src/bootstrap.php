@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Bootstrap file for the modular BotMirzaPanel application
  * This file initializes all modules with proper dependency injection

@@ -136,7 +136,7 @@ class Panel
         $this->updatedAt = new DateTime();
     }
 
-    public function getPanelUserByUserId($userId): ?PanelUser
+    public function getPanelUserByUserId(UserId $userId): ?PanelUser
     {
         foreach ($this->panelUsers as $panelUser) {
             if ($panelUser->getUserId()->equals($userId)) {

@@ -116,6 +116,10 @@ class XUIAdapter implements PanelAdapterInterface
             
             $clientData = $this->prepareClientData($userData, $user['client']);
             
+            if (!isset($user['client']['id'])) {
+                return false;
+            }
+            
             $response = $this->makeRequest('POST', "/xui/inbound/updateClient/{$user['client']['id']}", [
                 'id' => $user['inbound_id'],
                 'settings' => json_encode([
@@ -412,7 +416,7 @@ class XUIAdapter implements PanelAdapterInterface
     {
         try {
             $user = $this->findUserByUsername($username);
-            if (!$user) {
+            if (!$user || !isset($user['client'], $user['inbound_id'])) {
                 return false;
             }
             
@@ -437,6 +441,10 @@ class XUIAdapter implements PanelAdapterInterface
      */
     private function generateUserConfig(array $client, array $inbound): string
     {
+        if (!isset($inbound['protocol'], $inbound['port'])) {
+            throw new \InvalidArgumentException('Invalid inbound configuration');
+        }
+        
         $protocol = $inbound['protocol'];
         $port = $inbound['port'];
         $host = parse_url($this->baseUrl, PHP_URL_HOST);

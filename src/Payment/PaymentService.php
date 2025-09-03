@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BotMirzaPanel\Payment;
 
 use BotMirzaPanel\Config\ConfigManager;
@@ -131,10 +133,17 @@ class PaymentService
         // Verify callback with gateway
         $verificationResult = $gatewayInstance->verifyCallback($callbackData);
         
-        if (!$verificationResult['valid']) {
+        if (!isset($verificationResult['valid']) || !$verificationResult['valid']) {
             return [
                 'success' => false,
                 'message' => 'Invalid callback signature'
+            ];
+        }
+        
+        if (!isset($verificationResult['order_id'], $verificationResult['status'])) {
+            return [
+                'success' => false,
+                'message' => 'Invalid verification result structure'
             ];
         }
         

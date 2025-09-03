@@ -183,7 +183,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Check PPP secrets first
             $pppUsers = $this->sendCommand('/ppp/secret/print', ['?name=' . $username]);
-            if (!empty($pppUsers)) {
+            if (!empty($pppUsers) && isset($pppUsers[0])) {
                 $user = $pppUsers[0];
                 $this->disconnect();
                 return [
@@ -198,7 +198,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Check Hotspot users
             $hotspotUsers = $this->sendCommand('/ip/hotspot/user/print', ['?name=' . $username]);
-            if (!empty($hotspotUsers)) {
+            if (!empty($hotspotUsers) && isset($hotspotUsers[0])) {
                 $user = $hotspotUsers[0];
                 $this->disconnect();
                 return [
@@ -270,7 +270,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Get active PPP sessions
             $activeSessions = $this->sendCommand('/ppp/active/print', ['?name=' . $username]);
-            if (!empty($activeSessions)) {
+            if (!empty($activeSessions) && isset($activeSessions[0])) {
                 $session = $activeSessions[0];
                 $this->disconnect();
                 return [
@@ -287,7 +287,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Get Hotspot active sessions
             $hotspotActive = $this->sendCommand('/ip/hotspot/active/print', ['?user=' . $username]);
-            if (!empty($hotspotActive)) {
+            if (!empty($hotspotActive) && isset($hotspotActive[0])) {
                 $session = $hotspotActive[0];
                 $this->disconnect();
                 return [
@@ -615,7 +615,7 @@ class MikroTikAdapter implements PanelAdapterInterface
     {
         $users = $this->sendCommand('/ppp/secret/print', ['?name=' . $username]);
         
-        if (empty($users)) {
+        if (empty($users) || !isset($users[0]['.id'])) {
             throw new \Exception("PPP user not found: {$username}");
         }
         
@@ -662,7 +662,7 @@ class MikroTikAdapter implements PanelAdapterInterface
     {
         $users = $this->sendCommand('/ip/hotspot/user/print', ['?name=' . $username]);
         
-        if (empty($users)) {
+        if (empty($users) || !isset($users[0]['.id'])) {
             throw new \Exception("Hotspot user not found: {$username}");
         }
         
@@ -690,7 +690,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Try PPP user first
             $pppUsers = $this->sendCommand('/ppp/secret/print', ['?name=' . $username]);
-            if (!empty($pppUsers)) {
+            if (!empty($pppUsers) && isset($pppUsers[0]['.id'])) {
                 $userId = $pppUsers[0]['.id'];
                 $params = ['=.id=' . $userId, '=disabled=' . ($disabled ? 'yes' : 'no')];
                 $this->sendCommand('/ppp/secret/set', $params);
@@ -700,7 +700,7 @@ class MikroTikAdapter implements PanelAdapterInterface
             
             // Try Hotspot user
             $hotspotUsers = $this->sendCommand('/ip/hotspot/user/print', ['?name=' . $username]);
-            if (!empty($hotspotUsers)) {
+            if (!empty($hotspotUsers) && isset($hotspotUsers[0]['.id'])) {
                 $userId = $hotspotUsers[0]['.id'];
                 $params = ['=.id=' . $userId, '=disabled=' . ($disabled ? 'yes' : 'no')];
                 $this->sendCommand('/ip/hotspot/user/set', $params);
