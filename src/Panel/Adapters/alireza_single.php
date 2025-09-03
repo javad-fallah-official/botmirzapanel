@@ -1,8 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 require_once 'config.php';
 ini_set('error_log', 'error_log');
 
-function loginalireza($url,$username,$password){
+/**
+ * Login to Alireza panel
+ * 
+ * @param string $url Panel URL
+ * @param string $username Username
+ * @param string $password Password
+ * @return array<string, mixed> Login response or error
+ */
+function loginalireza(string $url, string $username, string $password): array {
     $curl = curl_init();
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url.'/login',
@@ -25,7 +36,14 @@ function loginalireza($url,$username,$password){
     curl_close($curl);
     return json_decode($response,true);
 }
-function get_Clientalireza($username,$namepanel){
+/**
+ * Get client traffic information from Alireza panel
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed>|null Client traffic data or null
+ */
+function get_Clientalireza(string $username, string $namepanel): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     loginalireza($marzban_list_get['url_panel'],$marzban_list_get['username_panel'],$marzban_list_get['password_panel']);
     $curl = curl_init();
@@ -54,7 +72,14 @@ function get_Clientalireza($username,$namepanel){
     return $response;
     unlink('cookie.txt');
 }
-function get_clinetsalireza($username,$namepanel){
+/**
+ * Get client configuration from Alireza panel inbounds
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed>|null Client configuration data or null
+ */
+function get_clinetsalireza(string $username, string $namepanel): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     loginalireza($marzban_list_get['url_panel'],$marzban_list_get['username_panel'],$marzban_list_get['password_panel']);
     $curl = curl_init();
@@ -94,7 +119,19 @@ function get_clinetsalireza($username,$namepanel){
     unlink('cookie.txt');
     return $output;
 }
-function addClientalireza_singel($namepanel, $usernameac, $Expire,$Total, $Uuid,$Flow,$subid){
+/**
+ * Add new client to Alireza panel
+ * 
+ * @param string $namepanel Panel name
+ * @param string $usernameac Username
+ * @param int $Expire Expiration timestamp
+ * @param int $Total Total volume
+ * @param string $Uuid Client UUID
+ * @param string $Flow Flow configuration
+ * @param string $subid Subscription ID
+ * @return array<string, mixed>|null Client creation response or null
+ */
+function addClientalireza_singel(string $namepanel, string $usernameac, int $Expire, int $Total, string $Uuid, string $Flow, string $subid): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $Allowedusername = get_Clientalireza($usernameac,$namepanel);
     if (isset($Allowedusername['email'])) {
@@ -151,7 +188,15 @@ function addClientalireza_singel($namepanel, $usernameac, $Expire,$Total, $Uuid,
     unlink('cookie.txt');
     return json_decode($response, true);
 }
-function updateClientalireza($namepanel, $username,array $config){
+/**
+ * Update client configuration in Alireza panel
+ * 
+ * @param string $namepanel Panel name
+ * @param string $username Username
+ * @param array<string, mixed> $config Configuration data
+ * @return array<string, mixed>|null Update response or null
+ */
+function updateClientalireza(string $namepanel, string $username, array $config): array|null {
     $UsernameData = get_clinetsalireza($username,$namepanel);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     loginalireza($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -183,7 +228,14 @@ function updateClientalireza($namepanel, $username,array $config){
     unlink('cookie.txt');
     return json_decode($response, true);
 }
-function ResetUserDataUsagealirezasin($usernamepanel, $namepanel){
+/**
+ * Reset user data usage in Alireza panel
+ * 
+ * @param string $usernamepanel Username
+ * @param string $namepanel Panel name
+ * @return void
+ */
+function ResetUserDataUsagealirezasin(string $usernamepanel, string $namepanel): void {
     $data_user = get_clinetsalireza($usernamepanel,$namepanel);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     loginalireza($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -211,7 +263,14 @@ function ResetUserDataUsagealirezasin($usernamepanel, $namepanel){
     curl_close($curl);
     unlink('cookie.txt');
 }
-function removeClientalireza_single($location,$username){
+/**
+ * Remove client from Alireza panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed>|null Removal response or null
+ */
+function removeClientalireza_single(string $location, string $username): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     loginalireza($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
     $data_user = get_clinetsalireza($username,$location);
@@ -239,7 +298,14 @@ function removeClientalireza_single($location,$username){
     unlink('cookie.txt');
     return $response;
 }
-function get_onlineclialireza($name_panel,$username){
+/**
+ * Check if client is online in Alireza panel
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @return string Online status ('online' or 'offline')
+ */
+function get_onlineclialireza(string $name_panel, string $username): string {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $name_panel,"select");
     loginalireza($marzban_list_get['url_panel'],$marzban_list_get['username_panel'],$marzban_list_get['password_panel']);
     $curl = curl_init();

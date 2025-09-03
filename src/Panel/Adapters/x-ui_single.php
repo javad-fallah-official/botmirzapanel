@@ -1,7 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 require_once 'config.php';
 
-function panel_login_cookie($code_panel): array|string {
+/**
+ * Login to panel and get cookie
+ * 
+ * @param string $code_panel Panel code
+ * @return array<string, mixed>|string Login response or error
+ */
+function panel_login_cookie(string $code_panel): array|string {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -26,7 +35,14 @@ curl_close($curl);
 return $response;
 }
 
-function login($code_panel,$verify = true): array|null {
+/**
+ * Login to panel with verification
+ * 
+ * @param string $code_panel Panel code
+ * @param bool $verify Whether to verify existing login
+ * @return array<string, mixed>|null Login response or null if already logged in
+ */
+function login(string $code_panel, bool $verify = true): array|null {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     if($panel['datelogin'] != null && $verify){
         $date = json_decode($panel['datelogin'],true);
@@ -51,7 +67,14 @@ function login($code_panel,$verify = true): array|null {
 }
 
 
-function get_Client($username,$namepanel): array {
+/**
+ * Get client traffic information
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> Client traffic data
+ */
+function get_Client(string $username, string $namepanel): array {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     login($marzban_list_get['id']);
@@ -77,7 +100,14 @@ curl_close($curl);
 return $response;
 unlink('cookie.txt');
 }
-function get_clinets($username,$namepanel): array {
+/**
+ * Get client configuration from inbounds
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> Client configuration data
+ */
+function get_clinets(string $username, string $namepanel): array {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $login =login($marzban_list_get['id']);
@@ -114,7 +144,19 @@ curl_close($curl);
 unlink('cookie.txt');
 return $output;
 }
-function addClient($namepanel, $usernameac, $Expire,$Total, $Uuid,$Flow,$subid){
+/**
+ * Add new client to X-UI panel
+ * 
+ * @param string $namepanel Panel name
+ * @param string $usernameac Username
+ * @param int $Expire Expiration timestamp
+ * @param int $Total Total volume
+ * @param string $Uuid Client UUID
+ * @param string $Flow Flow configuration
+ * @param string $subid Subscription ID
+ * @return array<string, mixed>|null Client creation response
+ */
+function addClient(string $namepanel, string $usernameac, int $Expire, int $Total, string $Uuid, string $Flow, string $subid): array|null {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $Allowedusername = get_Client($usernameac,$namepanel);
@@ -169,7 +211,15 @@ function addClient($namepanel, $usernameac, $Expire,$Total, $Uuid,$Flow,$subid){
     unlink('cookie.txt');
     return json_decode($response, true);
 }
-function updateClient($namepanel, $username,array $config){
+/**
+ * Update client configuration
+ * 
+ * @param string $namepanel Panel name
+ * @param string $username Username
+ * @param array<string, mixed> $config Configuration data
+ * @return array<string, mixed>|null Update response
+ */
+function updateClient(string $namepanel, string $username, array $config): array|null {
     global $connect;
     $UsernameData = get_clinets($username,$namepanel);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
@@ -201,7 +251,14 @@ function updateClient($namepanel, $username,array $config){
     unlink('cookie.txt');
     return json_decode($response, true);
 }
-function ResetUserDataUsagex_uisin($usernamepanel, $namepanel){
+/**
+ * Reset user data usage in X-UI panel
+ * 
+ * @param string $usernamepanel Username
+ * @param string $namepanel Panel name
+ * @return void
+ */
+function ResetUserDataUsagex_uisin(string $usernamepanel, string $namepanel): void {
     global $connect;
     $data_user = get_clinets($usernamepanel,$namepanel);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
@@ -230,7 +287,14 @@ $response = curl_exec($curl);
 curl_close($curl);
 unlink('cookie.txt');
 }
-function removeClient($location,$username){
+/**
+ * Remove client from X-UI panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed>|null Removal response
+ */
+function removeClient(string $location, string $username): array|null {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $data_user = get_clinets($username,$location);
@@ -256,7 +320,14 @@ curl_close($curl);
 unlink('cookie.txt');
 return $response;
 }
-function get_onlinecli($name_panel,$username){
+/**
+ * Check if client is online
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @return string Online status ('online' or 'offline')
+ */
+function get_onlinecli(string $name_panel, string $username): string {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $name_panel,"select");
     login($marzban_list_get['id']);

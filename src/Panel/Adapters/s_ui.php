@@ -1,8 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 require_once 'config.php';
 ini_set('error_log', 'error_log');
 
-function get_Clients_ui($username,$namepanel){
+/**
+ * Get client information from S-UI panel
+ * 
+ * @param string $username Username to search for
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> Client data or empty array
+ */
+function get_Clients_ui(string $username, string $namepanel): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -31,7 +41,14 @@ function get_Clients_ui($username,$namepanel){
     return [];
     curl_close($curl);
 }
-function GetClientsS_UI($username,$namepanel){
+/**
+ * Get detailed client information from S-UI panel
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> Client details or empty array
+ */
+function GetClientsS_UI(string $username, string $namepanel): array {
     $userdata = get_Clients_ui($username,$namepanel);
     if(count($userdata) == 0)return [];
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
@@ -55,7 +72,17 @@ function GetClientsS_UI($username,$namepanel){
     return $response['obj']['clients'][0];
     curl_close($curl);
 }
-function addClientS_ui($namepanel, $usernameac, $Expire,$Total,$inboundid){
+/**
+ * Add new client to S-UI panel
+ * 
+ * @param string $namepanel Panel name
+ * @param string|null $usernameac Username
+ * @param int $Expire Expiration timestamp
+ * @param int $Total Total volume
+ * @param array<int> $inboundid Inbound IDs
+ * @return array<string, mixed>|string Client creation response
+ */
+function addClientS_ui(string $namepanel, ?string $usernameac, int $Expire, int $Total, array $inboundid): array|string {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     if($Expire == 0){
         $timeservice = 0;
@@ -145,7 +172,14 @@ function addClientS_ui($namepanel, $usernameac, $Expire,$Total,$inboundid){
     curl_close($curl);
     return json_decode($response, true);
 }
-function updateClientS_ui($namepanel,array $config){
+/**
+ * Update client configuration in S-UI panel
+ * 
+ * @param string $namepanel Panel name
+ * @param array<string, mixed> $config Configuration data
+ * @return array<string, mixed>|null Update response
+ */
+function updateClientS_ui(string $namepanel, array $config): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -168,7 +202,14 @@ function updateClientS_ui($namepanel,array $config){
     curl_close($curl);
     return json_decode($response, true);
 }
-function ResetUserDataUsages_ui($usernamepanel, $namepanel){
+/**
+ * Reset user data usage in S-UI panel
+ * 
+ * @param string $usernamepanel Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed>|null Reset response
+ */
+function ResetUserDataUsages_ui(string $usernamepanel, string $namepanel): array|null {
     $clients = GetClientsS_UI($usernamepanel,$namepanel);
     $configpanel = array(
         "object" => 'clients',
@@ -190,7 +231,14 @@ function ResetUserDataUsages_ui($usernamepanel, $namepanel){
     $result = updateClientS_ui($namepanel,$configpanel);
     return $result;
 }
-function removeClientS_ui($location,$username){
+/**
+ * Remove client from S-UI panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed>|null Removal response
+ */
+function removeClientS_ui(string $location, string $username): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $data_user = GetClientsS_UI($username,$location);
     $curl = curl_init();
@@ -219,7 +267,14 @@ function removeClientS_ui($location,$username){
     curl_close($curl);
     return $response;
 }
-function get_onlineclients_ui($name_panel,$username){
+/**
+ * Check if client is online in S-UI panel
+ * 
+ * @param string $name_panel Panel name
+ * @param string $username Username
+ * @return string Online status ('online' or 'offline')
+ */
+function get_onlineclients_ui(string $name_panel, string $username): string {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $name_panel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -244,7 +299,13 @@ function get_onlineclients_ui($name_panel,$username){
     curl_close($curl);
 
 }
-function get_settig($name_panel){
+/**
+ * Get panel settings from S-UI
+ * 
+ * @param string $name_panel Panel name
+ * @return array<string, mixed> Panel settings or empty array
+ */
+function get_settig(string $name_panel): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $name_panel,"select");
     $curl = curl_init();
     curl_setopt_array($curl, array(

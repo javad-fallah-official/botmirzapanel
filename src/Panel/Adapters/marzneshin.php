@@ -1,6 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 #-----------------------------#
-function token_panelm($url_panel,$username_panel,$password_panel){
+/**
+ * Get authentication token for Marzneshin panel
+ * 
+ * @param string $url_panel Panel URL
+ * @param string $username_panel Username
+ * @param string $password_panel Password
+ * @return array<string, mixed> Token response or error
+ */
+function token_panelm(string $url_panel, string $username_panel, string $password_panel): array {
     $panel = select("marzban_panel","*","url_panel",$url_panel,"select");
     if($panel['datelogin'] != null){
         $date = json_decode($panel['datelogin'],true);
@@ -51,7 +62,14 @@ function token_panelm($url_panel,$username_panel,$password_panel){
 
 #-----------------------------#
 
-function getuserm($username,$location)
+/**
+ * Get user information from Marzneshin panel
+ * 
+ * @param string $username Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null User data or null
+ */
+function getuserm(string $username, string $location): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -75,7 +93,14 @@ function getuserm($username,$location)
     return $data_useer;
 }
 #-----------------------------#
-function ResetUserDataUsagem($username,$location)
+/**
+ * Reset user data usage in Marzneshin panel
+ * 
+ * @param string $username Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null Reset response or null
+ */
+function ResetUserDataUsagem(string $username, string $location): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -97,7 +122,14 @@ function ResetUserDataUsagem($username,$location)
     $data_useer = json_decode($output, true);
     return $data_useer;
 }
-function revoke_subm($username,$location)
+/**
+ * Revoke user subscription in Marzneshin panel
+ * 
+ * @param string $username Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null Revoke response or null
+ */
+function revoke_subm(string $username, string $location): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -120,7 +152,16 @@ function revoke_subm($username,$location)
     return $data_useer;
 }
 #-----------------------------#
-function adduserm($location,$data_limit,$username_ac,$timestamp)
+/**
+ * Add new user to Marzneshin panel
+ * 
+ * @param string $location Panel location
+ * @param int $data_limit Data limit in bytes
+ * @param string $username_ac Username
+ * @param int $timestamp Expiration timestamp
+ * @return string|null User creation response or null
+ */
+function adduserm(string $location, int $data_limit, string $username_ac, int $timestamp): string|null
 {
     global $pdo;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
@@ -170,7 +211,13 @@ function adduserm($location,$data_limit,$username_ac,$timestamp)
     return $response;
 }
 //----------------------------------
-function Get_System_Statsm($location){
+/**
+ * Get system statistics from Marzneshin panel
+ * 
+ * @param string $location Panel location
+ * @return array<string, mixed>|null System statistics or null
+ */
+function Get_System_Statsm(string $location): array|null {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
     $url =  $marzban_list_get['url_panel'].'/api/system/stats/users';
@@ -191,7 +238,14 @@ function Get_System_Statsm($location){
     return $Get_System_Stats;
 }
 //----------------------------------
-function removeuserm($location,$username)
+/**
+ * Remove user from Marzneshin panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed>|null Removal response or null
+ */
+function removeuserm(string $location, string $username): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
@@ -214,7 +268,15 @@ function removeuserm($location,$username)
     return $data_useer;
 }
 //----------------------------------
-function Modifyuserm($location,$username,array $data)
+/**
+ * Modify user configuration in Marzneshin panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @param array<string, mixed> $data User data to modify
+ * @return array<string, mixed>|null Modification response or null
+ */
+function Modifyuserm(string $location, string $username, array $data): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);

@@ -1,9 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 require_once 'config.php';
 ini_set('error_log', 'error_log');
 
-
-function get_userwg($username, $namepanel)
+/**
+ * Get WireGuard user information
+ * 
+ * @param string $username Username
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> User information
+ */
+function get_userwg(string $username, string $namepanel): array
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
     $curl = curl_init();
@@ -34,7 +43,13 @@ function get_userwg($username, $namepanel)
     curl_close($curl);
     return $output;
 }
-function ipslast($namepanel)
+/**
+ * Get last available IP address
+ * 
+ * @param string $namepanel Panel name
+ * @return string Available IP address
+ */
+function ipslast(string $namepanel): string
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -59,7 +74,14 @@ function ipslast($namepanel)
     curl_close($curl);
     return $response[$key][0];
 }
-function downloadconfig($namepanel, $publickey)
+/**
+ * Download WireGuard configuration
+ * 
+ * @param string $namepanel Panel name
+ * @param string $publickey Public key
+ * @return string Configuration data
+ */
+function downloadconfig(string $namepanel, string $publickey): string
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -83,7 +105,14 @@ function downloadconfig($namepanel, $publickey)
     curl_close($curl);
     return $response;
 }
-function addpear($namepanel, $usernameac)
+/**
+ * Add WireGuard peer
+ * 
+ * @param string $namepanel Panel name
+ * @param string $usernameac Username
+ * @return array<string, mixed> Peer configuration or error response
+ */
+function addpear(string $namepanel, string $usernameac): array
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -122,7 +151,16 @@ function addpear($namepanel, $usernameac)
     curl_close($curl);
     return $config;
 }
-function setjob($namepanel, $type, $value, $publickey)
+/**
+ * Set scheduled job for peer
+ * 
+ * @param string $namepanel Panel name
+ * @param string $type Job type
+ * @param mixed $value Job value
+ * @param string $publickey Public key
+ * @return string Job response
+ */
+function setjob(string $namepanel, string $type, mixed $value, string $publickey): string
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
     $curl = curl_init();
@@ -159,7 +197,14 @@ function setjob($namepanel, $type, $value, $publickey)
     curl_close($curl);
     return $response;
 }
-function updatepear($namepanel, array $config)
+/**
+ * Update WireGuard peer settings
+ * 
+ * @param string $namepanel Panel name
+ * @param array<string, mixed> $config Peer configuration
+ * @return string Update response
+ */
+function updatepear(string $namepanel, array $config): string
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -188,7 +233,14 @@ function updatepear($namepanel, array $config)
     curl_close($curl);
     return json_decode($response, true);
 }
-function deletejob($namepanel, array $config)
+/**
+ * Delete scheduled job
+ * 
+ * @param string $namepanel Panel name
+ * @param array<string, mixed> $config Job configuration
+ * @return array<string, mixed> Delete response
+ */
+function deletejob(string $namepanel, array $config): array
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -216,7 +268,14 @@ function deletejob($namepanel, array $config)
     curl_close($curl);
     return json_decode($response, true);
 }
-function ResetUserDataUsagewg($publickey, $namepanel)
+/**
+ * Reset WireGuard user data usage
+ * 
+ * @param string $publickey Public key
+ * @param string $namepanel Panel name
+ * @return array<string, mixed> Reset response
+ */
+function ResetUserDataUsagewg(string $publickey, string $namepanel): array
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $namepanel, "select");
@@ -249,7 +308,14 @@ function ResetUserDataUsagewg($publickey, $namepanel)
 }
 
 
-function remove_userwg($location, $username)
+/**
+ * Remove WireGuard user
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed> Removal response
+ */
+function remove_userwg(string $location, string $username): array
 {
     allowAccessPeers($location, $username);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
@@ -278,7 +344,14 @@ function remove_userwg($location, $username)
     curl_close($curl);
     return $response;
 }
-function allowAccessPeers($location, $username)
+/**
+ * Allow access for WireGuard peers
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed> Access response
+ */
+function allowAccessPeers(string $location, string $username): array
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");

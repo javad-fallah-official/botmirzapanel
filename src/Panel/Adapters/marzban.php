@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 require_once 'functions.php';
 #-----------------------------#
 function token_panel($code_panel): array {
@@ -52,7 +55,14 @@ function token_panel($code_panel): array {
 
 #-----------------------------#
 
-function getuser($usernameac,$location)
+/**
+ * Get user information from Marzban panel
+ * 
+ * @param string $usernameac Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null User data or null
+ */
+function getuser(string $usernameac, string $location): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
@@ -74,7 +84,14 @@ function getuser($usernameac,$location)
     return $data_useer;
 }
 #-----------------------------#
-function ResetUserDataUsage($usernameac,$location)
+/**
+ * Reset user data usage in Marzban panel
+ * 
+ * @param string $usernameac Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null Reset response or null
+ */
+function ResetUserDataUsage(string $usernameac, string $location): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
@@ -96,7 +113,17 @@ function ResetUserDataUsage($usernameac,$location)
     return $data_useer;
 }
 #-----------------------------#
-function adduser($username,$expire,$data_limit,$location,$is_test = false)
+/**
+ * Add new user to Marzban panel
+ * 
+ * @param string $username Username
+ * @param string|int $expire Expiration time
+ * @param int $data_limit Data limit in bytes
+ * @param string $location Panel location
+ * @param bool $is_test Whether this is a test user
+ * @return string User creation response
+ */
+function adduser(string $username, string|int $expire, int $data_limit, string $location, bool $is_test = false): string
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
@@ -184,7 +211,14 @@ function Get_System_Stats($location): array {
     return $Get_System_Stats;
 }
 //----------------------------------
-function removeuser($location,$username)
+/**
+ * Remove user from Marzban panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @return array<string, mixed>|null Removal response or null
+ */
+function removeuser(string $location, string $username): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
@@ -207,7 +241,15 @@ function removeuser($location,$username)
     return $data_useer;
 }
 //----------------------------------
-function Modifyuser($location,$username,array $data)
+/**
+ * Modify user configuration in Marzban panel
+ * 
+ * @param string $location Panel location
+ * @param string $username Username
+ * @param array<string, mixed> $data User data to modify
+ * @return array<string, mixed>|null Modification response or null
+ */
+function Modifyuser(string $location, string $username, array $data): array|null
 {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
@@ -231,7 +273,14 @@ curl_close($ch);
 }
 
 #-----------------------------------------------#
-function revoke_sub($username,$location)
+/**
+ * Revoke user subscription in Marzban panel
+ * 
+ * @param string $username Username
+ * @param string $location Panel location
+ * @return array<string, mixed>|null Revoke response or null
+ */
+function revoke_sub(string $username, string $location): array|null
 {
     global $connect;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
