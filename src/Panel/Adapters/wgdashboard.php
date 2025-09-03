@@ -31,7 +31,7 @@ function get_userwg(string $username, string $namepanel): array
         ),
     ));
     $response = json_decode(curl_exec($curl), true);
-    if ($response === false) return;
+    if ($response === false) return [];
     $outputpear = array_merge($response['data']['configurationPeers'], $response['data']['configurationRestrictedPeers']);
     $output = [];
     foreach ($outputpear as $userinfo) {
@@ -380,7 +380,7 @@ function allowAccessPeers(string $location, string $username): array
     curl_close($curl);
     return $response;
 }
-function restrictPeers($location, $username)
+function restrictPeers(string $location, string $username): array
 {
 
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Domain\Repositories;
+namespace BotMirzaPanel\Domain\Repositories;
 
-use Domain\Entities\Subscription\Subscription;
-use Domain\Entities\Subscription\SubscriptionUsage;
-use Domain\ValueObjects\Subscription\SubscriptionId;
-use Domain\ValueObjects\Subscription\SubscriptionStatus;
-use Domain\ValueObjects\Subscription\SubscriptionType;
-use Domain\ValueObjects\User\UserId;
-use Domain\ValueObjects\Panel\PanelId;
-use Domain\ValueObjects\Common\DateTimeRange;
-use Domain\ValueObjects\Common\Money;
+use BotMirzaPanel\Domain\Entities\Subscription\Subscription;
+use BotMirzaPanel\Domain\Entities\Subscription\SubscriptionUsage;
+use BotMirzaPanel\Domain\ValueObjects\Subscription\SubscriptionId;
+use BotMirzaPanel\Domain\ValueObjects\Subscription\SubscriptionStatus;
+use BotMirzaPanel\Domain\ValueObjects\Subscription\SubscriptionType;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Panel\PanelId;
+use BotMirzaPanel\Domain\ValueObjects\Common\DateTimeRange;
+use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 
 /**
  * Subscription repository interface for data persistence operations

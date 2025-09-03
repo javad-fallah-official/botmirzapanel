@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Domain\Services\Payment;
+namespace BotMirzaPanel\Domain\Services\Payment;
 
-use Domain\Entities\Payment\Payment;
-use Domain\ValueObjects\Payment\PaymentId;
-use Domain\ValueObjects\Payment\PaymentStatus;
-use Domain\ValueObjects\Common\Money;
-use Domain\ValueObjects\User\UserId;
-use Domain\Exceptions\PaymentValidationException;
+use BotMirzaPanel\Domain\Entities\Payment\Payment;
+use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentId;
+use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentStatus;
+use BotMirzaPanel\Domain\ValueObjects\Common\Money;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\Exceptions\PaymentValidationException;
 use DateTimeImmutable;
 
 /**

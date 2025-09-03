@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\ValueObjects\User;
+namespace BotMirzaPanel\Domain\ValueObjects\User;
 
 /**
  * User referral code value object

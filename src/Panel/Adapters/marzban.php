@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once 'functions.php';
 #-----------------------------#
-function token_panel($code_panel): array {
+function token_panel(int $code_panel): array {
     $panel = select("marzban_panel","*","id",$code_panel,"select");
     if($panel['datelogin'] != null){
         $date = json_decode($panel['datelogin'],true);
@@ -190,7 +190,7 @@ function adduser(string $username, string|int $expire, int $data_limit, string $
     return $response;
 }
 //----------------------------------
-function Get_System_Stats($location): array {
+function Get_System_Stats(string $location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url =  $marzban_list_get['url_panel'].'/api/system';
@@ -306,7 +306,7 @@ function revoke_sub(string $username, string $location): array|null
 
 //----------------------------------
 // Check if Marzban version is above 0.8.4
-function is_marzban_version_above_084($location): bool {
+function is_marzban_version_above_084(string $location): bool {
     try {
         $system_stats = Get_System_Stats($location);
         if (isset($system_stats['version'])) {
@@ -327,7 +327,7 @@ function is_marzban_version_above_084($location): bool {
 
 //----------------------------------
 // Get all available inbounds for a panel
-function get_all_inbounds($location): array {
+function get_all_inbounds(string $location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = $marzban_list_get['url_panel'] . '/api/inbounds';
@@ -361,7 +361,7 @@ function get_all_inbounds($location): array {
 
 //----------------------------------
 // NEW: Fetch inbound tags via /api/cores (more reliable for newer Marzban versions)
-function get_inbound_tags_from_cores($location): array {
+function get_inbound_tags_from_cores(string $location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = rtrim($marzban_list_get['url_panel'], '/') . '/api/cores';
@@ -399,7 +399,7 @@ function get_inbound_tags_from_cores($location): array {
 
 //----------------------------------
 // Helper: normalize groups response and return array of group objects
-function _extract_groups_array($existing_groups): array {
+function _extract_groups_array(array $existing_groups): array {
     if (is_array($existing_groups)) {
         if (isset($existing_groups['groups']) && is_array($existing_groups['groups'])) {
             return $existing_groups['groups'];
@@ -415,7 +415,7 @@ function _extract_groups_array($existing_groups): array {
 }
 
 // Helper: get single group by name (case-insensitive)
-function get_group_by_name($location, $group_name): ?array {
+function get_group_by_name(string $location, string $group_name): ?array {
     $existing_groups = get_groups($location);
     $groups_list = _extract_groups_array($existing_groups);
     foreach ($groups_list as $g) {
@@ -482,7 +482,7 @@ function create_group($location, $group_name, $inbound_tags = null): array {
 
 //----------------------------------
 // Get all groups from Marzban
-function get_groups($location): array {
+function get_groups(string $location): array {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['id']);
     $url = $marzban_list_get['url_panel'] . '/api/groups';
@@ -505,7 +505,7 @@ function get_groups($location): array {
 
 //----------------------------------
 // Ensure default groups exist for Marzban >0.8.4 (now passes inbound_tags) (updated to avoid duplicates)
-function ensure_default_groups($location): array|bool {
+function ensure_default_groups(string $location): array|bool {
     static $already_ran = array();
     if (isset($already_ran[$location])) { return array(); }
     $already_ran[$location] = true; // guard for repeated calls within same request

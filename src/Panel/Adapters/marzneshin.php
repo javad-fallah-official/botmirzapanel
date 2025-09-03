@@ -75,7 +75,7 @@ function getuserm(string $username, string $location): array|null
     $Check_token = token_panelm($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
     $usernameac = $username;
     $url =  $marzban_list_get['url_panel'].'/api/users/' . $usernameac;
-    if(!isset($Check_token['access_token']))return;
+    if(!isset($Check_token['access_token']))return null;
     $header_value = 'Bearer ';
 
     $ch = curl_init();

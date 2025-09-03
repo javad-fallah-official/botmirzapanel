@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Domain\Repositories;
+namespace BotMirzaPanel\Domain\Repositories;
 
-use Domain\Entities\Panel\Panel;
-use Domain\Entities\Panel\PanelUser;
-use Domain\ValueObjects\Panel\PanelId;
-use Domain\ValueObjects\Panel\PanelType;
-use Domain\ValueObjects\User\UserId;
-use Domain\ValueObjects\Common\Url;
-use Domain\ValueObjects\Common\DateTimeRange;
+use BotMirzaPanel\Domain\Entities\Panel\Panel;
+use BotMirzaPanel\Domain\Entities\Panel\PanelUser;
+use BotMirzaPanel\Domain\ValueObjects\Panel\PanelId;
+use BotMirzaPanel\Domain\ValueObjects\Panel\PanelType;
+use BotMirzaPanel\Domain\ValueObjects\User\UserId;
+use BotMirzaPanel\Domain\ValueObjects\Common\Url;
+use BotMirzaPanel\Domain\ValueObjects\Common\DateTimeRange;
 
 /**
  * Panel repository interface for data persistence operations
