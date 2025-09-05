@@ -9,7 +9,7 @@ use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentId;
 use BotMirzaPanel\Domain\ValueObjects\Payment\PaymentStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
-use BotMirzaPanel\Domain\Exceptions\PaymentValidationException;
+use BotMirzaPanel\Domain\Exceptions\ValidationException;
 use DateTimeImmutable;
 
 /**
@@ -26,7 +26,7 @@ class PaymentService
      * @param string|null $description Optional payment description
      * @param array|null $metadata Optional payment metadata
      * @return Payment Created payment entity
-     * @throws PaymentValidationException When validation fails
+     * @throws ValidationException When validation fails
      */
     public function createPayment(
         UserId $userId,
@@ -59,7 +59,7 @@ class PaymentService
      * @param string $transactionId Gateway transaction ID
      * @param array|null $gatewayResponse Optional gateway response data
      * @return Payment Completed payment entity
-     * @throws PaymentValidationException When payment cannot be completed
+     * @throws ValidationException When payment cannot be completed
      */
     public function completePayment(
         Payment $payment,
@@ -67,7 +67,7 @@ class PaymentService
         ?array $gatewayResponse = null
     ): Payment {
         if (!$payment->canBeCompleted()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment cannot be completed in current status: ' . $payment->getStatus()->getValue()
             );
         }
@@ -88,7 +88,7 @@ class PaymentService
         ?array $gatewayResponse = null
     ): Payment {
         if (!$payment->canBeFailed()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment cannot be failed in current status: ' . $payment->getStatus()->getValue()
             );
         }
@@ -104,7 +104,7 @@ class PaymentService
     public function cancelPayment(Payment $payment, string $reason): Payment
     {
         if (!$payment->canBeCancelled()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment cannot be cancelled in current status: ' . $payment->getStatus()->getValue()
             );
         }
@@ -124,13 +124,13 @@ class PaymentService
         ?string $refundTransactionId = null
     ): Payment {
         if (!$payment->canBeRefunded()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment cannot be refunded in current status: ' . $payment->getStatus()->getValue()
             );
         }
         
         if ($refundAmount->isGreaterThan($payment->getAmount())) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Refund amount cannot be greater than payment amount'
             );
         }
@@ -159,7 +159,7 @@ class PaymentService
     public function expirePayment(Payment $payment): Payment
     {
         if (!$payment->getStatus()->isPending()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Only pending payments can be expired'
             );
         }
@@ -204,21 +204,21 @@ class PaymentService
     private function validatePaymentAmount(Money $amount): void
     {
         if ($amount->isZero() || $amount->isNegative()) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment amount must be positive'
             );
         }
         
         $minAmount = Money::fromFloat(1.0, $amount->getCurrency());
         if ($amount->isLessThan($minAmount)) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment amount is below minimum threshold'
             );
         }
         
         $maxAmount = Money::fromFloat(10000.0, $amount->getCurrency());
         if ($amount->isGreaterThan($maxAmount)) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Payment amount exceeds maximum threshold'
             );
         }
@@ -239,7 +239,7 @@ class PaymentService
         ];
         
         if (!in_array($gateway, $allowedGateways, true)) {
-            throw new PaymentValidationException(
+            throw new ValidationException(
                 'Invalid payment gateway: ' . $gateway
             );
         }

@@ -13,10 +13,13 @@
         "php": ">=7.4",
         "ext-curl": "*",
         "ext-json": "*",
-        "ext-pdo": "*",
+        "ext-mbstring": "*",
         "ext-mysqli": "*",
         "ext-openssl": "*",
-        "ext-mbstring": "*",
+        "ext-pdo": "*",
+        "psr/http-message": "^1.1",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
         "psr/log": "^2.0"
     },
     "require-dev": {

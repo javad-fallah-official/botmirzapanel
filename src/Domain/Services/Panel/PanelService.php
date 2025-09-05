@@ -11,9 +11,8 @@ use BotMirzaPanel\Domain\ValueObjects\Panel\PanelType;
 use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Url;
 use BotMirzaPanel\Domain\ValueObjects\Common\DataLimit;
-use BotMirzaPanel\Domain\Exceptions\PanelConnectionException;
-use BotMirzaPanel\Domain\Exceptions\PanelValidationException;
-use BotMirzaPanel\Domain\Exceptions\PanelUserNotFoundException;
+use BotMirzaPanel\Domain\Exceptions\ValidationException;
+use Exception;
 use DateTimeImmutable;
 
 /**
@@ -55,7 +54,7 @@ class PanelService
     public function testPanelConnection(Panel $panel): bool
     {
         if (!$panel->isActive()) {
-            throw new PanelConnectionException(
+            throw new Exception(
                 'Cannot test connection for inactive panel'
             );
         }
@@ -78,7 +77,7 @@ class PanelService
         ?array $protocols = null
     ): PanelUser {
         if (!$panel->isActive()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Cannot create user on inactive panel'
             );
         }
@@ -107,7 +106,7 @@ class PanelService
         ?array $protocols = null
     ): PanelUser {
         if (!$panelUser->isActive()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Cannot update inactive panel user'
             );
         }
@@ -139,7 +138,7 @@ class PanelService
     public function suspendPanelUser(PanelUser $panelUser, string $reason): PanelUser
     {
         if (!$panelUser->canBeSuspended()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel user cannot be suspended in current status'
             );
         }
@@ -155,7 +154,7 @@ class PanelService
     public function activatePanelUser(PanelUser $panelUser): PanelUser
     {
         if (!$panelUser->canBeActivated()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel user cannot be activated in current status'
             );
         }
@@ -211,7 +210,7 @@ class PanelService
     public function getPanelUserConnectionConfig(Panel $panel, PanelUser $panelUser): array
     {
         if (!$panelUser->isActive()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Cannot get connection config for inactive user'
             );
         }
@@ -260,25 +259,25 @@ class PanelService
         ?string $apiKey
     ): void {
         if (!$url->isSecure() && !$url->isLocalhost()) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel URL must use HTTPS for non-localhost connections'
             );
         }
         
         if (empty($username) || strlen($username) < 3) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel username must be at least 3 characters long'
             );
         }
         
         if (empty($password) || strlen($password) < 6) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel password must be at least 6 characters long'
             );
         }
         
         if ($type->requiresApiKey() && empty($apiKey)) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'API key is required for panel type: ' . $type->getValue()
             );
         }
@@ -309,13 +308,13 @@ class PanelService
     private function validatePanelUserData(string $username, string $password, ?array $protocols): void
     {
         if (empty($username) || strlen($username) < 3) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel user username must be at least 3 characters long'
             );
         }
         
         if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel user username can only contain letters, numbers, underscores, and hyphens'
             );
         }
@@ -333,7 +332,7 @@ class PanelService
     private function validatePassword(string $password): void
     {
         if (empty($password) || strlen($password) < 8) {
-            throw new PanelValidationException(
+            throw new ValidationException(
                 'Panel user password must be at least 8 characters long'
             );
         }
@@ -348,7 +347,7 @@ class PanelService
         
         foreach ($protocols as $protocol) {
             if (!in_array($protocol, $allowedProtocols, true)) {
-                throw new PanelValidationException(
+                throw new ValidationException(
                     'Invalid protocol: ' . $protocol
                 );
             }

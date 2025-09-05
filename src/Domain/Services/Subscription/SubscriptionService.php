@@ -14,8 +14,7 @@ use BotMirzaPanel\Domain\ValueObjects\Panel\PanelId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\Common\DataLimit;
 use BotMirzaPanel\Domain\ValueObjects\Common\DateTimeRange;
-use BotMirzaPanel\Domain\Exceptions\SubscriptionValidationException;
-use BotMirzaPanel\Domain\Exceptions\SubscriptionExpiredException;
+use BotMirzaPanel\Domain\Exceptions\ValidationException;
 use DateTimeImmutable;
 use DateInterval;
 
@@ -66,7 +65,7 @@ class SubscriptionService
     public function activateSubscription(Subscription $subscription): Subscription
     {
         if (!$subscription->canBeActivated()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Subscription cannot be activated in current status: ' . $subscription->getStatus()->getValue()
             );
         }
@@ -82,7 +81,7 @@ class SubscriptionService
     public function suspendSubscription(Subscription $subscription, string $reason): Subscription
     {
         if (!$subscription->canBeSuspended()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Subscription cannot be suspended in current status: ' . $subscription->getStatus()->getValue()
             );
         }
@@ -98,7 +97,7 @@ class SubscriptionService
     public function cancelSubscription(Subscription $subscription, string $reason): Subscription
     {
         if (!$subscription->canBeCancelled()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Subscription cannot be cancelled in current status: ' . $subscription->getStatus()->getValue()
             );
         }
@@ -117,7 +116,7 @@ class SubscriptionService
         ?Money $renewalPrice = null
     ): Subscription {
         if (!$subscription->canBeRenewed()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Subscription cannot be renewed in current status: ' . $subscription->getStatus()->getValue()
             );
         }
@@ -135,7 +134,7 @@ class SubscriptionService
     public function expireSubscription(Subscription $subscription): Subscription
     {
         if (!$subscription->getStatus()->isActive() && !$subscription->getStatus()->isGracePeriod()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Only active or grace period subscriptions can be expired'
             );
         }
@@ -151,7 +150,7 @@ class SubscriptionService
     public function putInGracePeriod(Subscription $subscription, DateTimeImmutable $gracePeriodEnds): Subscription
     {
         if (!$subscription->getStatus()->isActive()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Only active subscriptions can be put in grace period'
             );
         }
@@ -172,7 +171,7 @@ class SubscriptionService
         ?array $metadata = null
     ): SubscriptionUsage {
         if (!$subscription->isUsable()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Cannot record usage for non-usable subscription'
             );
         }
@@ -207,7 +206,7 @@ class SubscriptionService
         ?array $metadata = null
     ): SubscriptionUsage {
         if (!$subscription->isUsable()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Cannot record usage for non-usable subscription'
             );
         }
@@ -238,7 +237,7 @@ class SubscriptionService
         ?array $metadata = null
     ): SubscriptionUsage {
         if (!$subscription->isUsable()) {
-            throw new SubscriptionValidationException(
+            throw new ValidationException(
                 'Cannot record usage for non-usable subscription'
             );
         }
