@@ -45,7 +45,7 @@ class PerformanceMiddleware implements MiddlewareInterface
         
         // Start monitoring this request
         $this->monitoring->startTimer('request_' . $requestId);
-        $this->monitoring->recordMemoryUsage('request_start', $startMemory);
+        $this->monitoring->trackMemoryUsage('request_start');
         
         try {
             // Check for cached response
@@ -80,10 +80,16 @@ class PerformanceMiddleware implements MiddlewareInterface
             $responseTime = $endTime - $startTime;
             $memoryUsed = $endMemory - $startMemory;
             
-            $this->monitoring->endTimer('request_' . $requestId);
-            $this->monitoring->recordResponseTime($request->getUri()->getPath(), $responseTime);
-            $this->monitoring->recordMemoryUsage('request_end', $endMemory);
-            $this->monitoring->recordMemoryUsage('request_diff', $memoryUsed);
+            $this->monitoring->stopTimer('request_' . $requestId);
+            $this->monitoring->recordMetric('response_time', $request->getUri()->getPath(), [
+                'response_time' => $responseTime,
+                'timestamp' => time(),
+            ]);
+            $this->monitoring->trackMemoryUsage('request_end');
+            $this->monitoring->recordMetric('memory_usage_diff', 'request', [
+                'diff' => $memoryUsed,
+                'timestamp' => time(),
+            ]);
             
             // Check for performance alerts
             $this->checkPerformanceAlerts($responseTime, $memoryUsed);
@@ -280,9 +286,10 @@ class PerformanceMiddleware implements MiddlewareInterface
         $thresholds = $this->config['monitoring']['thresholds'] ?? [];
         
         if ($responseTime > ($thresholds['slow_operation_threshold'] ?? 1.0)) {
-            $this->monitoring->recordAlert('slow_response', [
+            $this->monitoring->recordMetric('alert', 'slow_response', [
                 'response_time' => $responseTime,
                 'threshold' => $thresholds['slow_operation_threshold'] ?? 1.0,
+                'timestamp' => time(),
             ]);
         }
         
@@ -290,10 +297,11 @@ class PerformanceMiddleware implements MiddlewareInterface
         $memoryUsageRatio = $memoryUsed / $memoryLimit;
         
         if ($memoryUsageRatio > ($thresholds['memory_warning_threshold'] ?? 0.8)) {
-            $this->monitoring->recordAlert('high_memory_usage', [
+            $this->monitoring->recordMetric('alert', 'high_memory_usage', [
                 'memory_used' => $memoryUsed,
                 'memory_limit' => $memoryLimit,
                 'usage_ratio' => $memoryUsageRatio,
+                'timestamp' => time(),
             ]);
         }
     }
