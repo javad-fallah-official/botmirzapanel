@@ -30,6 +30,8 @@ class User
     private ?string $lastName;
     private ?string $referralCode;
     private ?UserId $referredBy;
+    private float $balance = 0.0;
+    private bool $isPremium = false;
     private DateTime $createdAt;
     private DateTime $updatedAt;
     private array $domainEvents = [];
@@ -215,6 +217,28 @@ class User
     public function getPreferences(): ?UserPreferences
     {
         return $this->preferences;
+    }
+
+    public function getBalance(): float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(float $balance): void
+    {
+        $this->balance = $balance;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function getIsPremium(): bool
+    {
+        return $this->isPremium;
+    }
+
+    public function setIsPremium(bool $isPremium): void
+    {
+        $this->isPremium = $isPremium;
+        $this->updatedAt = new DateTime();
     }
 
     // Domain Events

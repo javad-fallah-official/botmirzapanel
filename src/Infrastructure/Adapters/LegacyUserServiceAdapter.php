@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace BotMirzaPanel\Infrastructure\Adapters;
 
 use BotMirzaPanel\Domain\Entities\User\User;
-use BotMirzaPanel\Domain\ValueObjects\User\UserId;
-use BotMirzaPanel\Domain\ValueObjects\User\Username;
-use BotMirzaPanel\Domain\ValueObjects\Common\Email;
-use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
 use BotMirzaPanel\Domain\Services\User\UserService as DomainUserService;
 use BotMirzaPanel\User\UserService as LegacyUserService;
 use BotMirzaPanel\Application\Commands\User\CreateUserCommand;
@@ -46,7 +42,7 @@ class LegacyUserServiceAdapter
     {
         try {
             // Try to get user using new architecture
-            $query = new GetUserByIdQuery(new UserId($userId));
+            $query = new GetUserByIdQuery((string)$userId);
             $user = $this->getUserHandler->handle($query);
             
             if ($user) {
@@ -59,12 +55,12 @@ class LegacyUserServiceAdapter
         // Create user using new architecture
         try {
             $command = new CreateUserCommand(
-                new UserId($userId),
-                isset($userInfo['username']) ? new Username($userInfo['username']) : null,
-                $userInfo['first_name'] ?? '',
-                $userInfo['last_name'] ?? '',
-                isset($userInfo['email']) ? new Email($userInfo['email']) : null,
-                isset($userInfo['phone']) ? new PhoneNumber($userInfo['phone']) : null,
+                $userInfo['email'] ?? '',
+                'default_password', // TODO: Handle password properly
+                $userInfo['first_name'] ?? null,
+                $userInfo['last_name'] ?? null,
+                $userInfo['phone'] ?? null,
+                (string)$userId, // Use userId as telegramChatId
                 $referralCode
             );
             
@@ -83,7 +79,7 @@ class LegacyUserServiceAdapter
     public function getUserById(int $userId): ?array
     {
         try {
-            $query = new GetUserByIdQuery(new UserId($userId));
+            $query = new GetUserByIdQuery((string)$userId);
             $user = $this->getUserHandler->handle($query);
             
             if ($user) {
@@ -140,11 +136,11 @@ class LegacyUserServiceAdapter
             'first_name' => $user->getFirstName(),
             'last_name' => $user->getLastName(),
             'email' => $user->getEmail()?->getValue(),
-            'phone' => $user->getPhone()?->getValue(),
-            'balance' => $user->getBalance()->getAmount(),
+            'phone' => $user->getPhoneNumber()?->getValue(),
+            'balance' => $user->getBalance(),
             'status' => $user->getStatus()->getValue(),
-            'telegram_chat_id' => $user->getTelegramChatId(),
-            'is_premium' => $user->isPremium(),
+            'telegram_chat_id' => $user->getTelegramId(),
+            'is_premium' => $user->getIsPremium(),
             'referral_code' => $user->getReferralCode(),
             'referred_by' => $user->getReferredBy()?->getValue(),
             'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
