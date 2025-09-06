@@ -1,4 +1,7 @@
 <?php
+// WARNING: SQL injection vulnerability detected in this file
+// Please review and use prepared statements or secure_* functions
+
 
 declare(strict_types=1);
 

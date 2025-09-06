@@ -1,8 +1,12 @@
 <?php
+// WARNING: SQL injection vulnerability detected in this file
+// Please review and use prepared statements or secure_* functions
+
 
 declare(strict_types=1);
 
 require_once 'functions.php';
+require_once 'secure_functions.php';
 #-----------------------------#
 function token_panel(int $code_panel): array {
     $panel = select("marzban_panel","*","id",$code_panel,"select");

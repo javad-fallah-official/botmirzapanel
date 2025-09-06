@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'functions.php';
+require_once 'secure_functions.php';
 require_once 'text.php';
 $setting = select("setting", "*");
 $admin_ids = select("admin", "id_admin", null, null, "FETCH_COLUMN");

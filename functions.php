@@ -24,32 +24,9 @@ function ActiveVoucher($ev_number, $ev_code)
 }
 function update($table, $field, $newValue, $whereField = null, $whereValue = null)
 {
-    global $pdo, $user;
-    $tables = [
-        "user",
-        "help",
-        "setting",
-        "admin",
-        "channels",
-        "marzban_panel",
-        "product",
-        "invoice",
-        "Payment_report",
-        "Discount",
-        "Giftcodeconsumed",
-        "textbot",
-        "PaySetting",
-        "DiscountSell",
-        "affiliates",
-        "cancel_service",
-        "category"
-    ];
-    if(!in_array($table, $tables))return;
-    if ($whereField !== null) {
-        $sql = "UPDATE $table SET $field = ? WHERE $whereField = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$newValue, $whereValue]);
-    } else {
+    // Redirect to secure function
+    return secure_update($table, $field, $newValue, $whereField, $whereValue);
+} else {
         $sql = "UPDATE $table SET $field = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$newValue]);
@@ -65,13 +42,9 @@ function step($step, $from_id)
 }
 function select($table, $field, $whereField = null, $whereValue = null, $type = "select")
 {
-    global $pdo;
-
-    $query = "SELECT $field FROM $table";
-
-    if ($whereField !== null) {
-        $query .= " WHERE $whereField = :whereValue";
-    }
+    // Redirect to secure function
+    return secure_select($table, $field, $whereField, $whereValue, $type);
+}
 
     try {
         $stmt = $pdo->prepare($query);

@@ -1,4 +1,7 @@
 <?php
+// WARNING: SQL injection vulnerability detected in this file
+// Please review and use prepared statements or secure_* functions
+
 
 namespace BotMirzaPanel\Domain\ValueObjects\User;
 

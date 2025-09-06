@@ -476,3 +476,9 @@ composer.lock
 for_ai.md
 README_MODULAR.md
 docs/
+
+##### Backups (auto-created safety copies)
+# Ignore timestamped PHP backups like *.php.backup.2025-09-06-13-58-58
+*.php.backup.*
+# Ignore any generic backup artifacts
+*.backup.*
