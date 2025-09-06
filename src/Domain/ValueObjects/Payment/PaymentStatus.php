@@ -35,7 +35,7 @@ class PaymentStatus
 
     private string $value;
 
-    private function __construct(string $status): void
+    private function __construct(string $status)
     {
         $this->validate($status);
         $this->value = $status;

@@ -16,7 +16,7 @@ class DataLimit
 
     private int $bytes;
 
-    private function __construct(int $bytes): void
+    private function __construct(int $bytes)
     {
         $this->validate($bytes);
         $this->bytes = $bytes;
