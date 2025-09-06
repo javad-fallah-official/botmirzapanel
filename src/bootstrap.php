@@ -146,7 +146,7 @@ function app(): Application
  * @param mixed $default Default value if key not found
  * @return mixed Configuration value or configuration manager
  */
-function config(string $key = null, $default = null)
+function config(string $key = null, $default = null): mixed
 {
     global $container;
     $configManager = $container->get('config');
@@ -239,7 +239,7 @@ set_error_handler(function($severity, $message, $file, $line) {
  * @param mixed $default Default value if key not found
  * @return mixed Configuration value
  */
-function getConfig($key, $default = null)
+function getConfig($key, $default = null): mixed
 {
     return config($key, $default);
 }

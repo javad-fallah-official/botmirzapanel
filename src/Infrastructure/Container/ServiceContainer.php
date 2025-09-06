@@ -243,7 +243,7 @@ class ServiceContainer
      * @return mixed Service instance
      * @throws \InvalidArgumentException When service is not found
      */
-    public function get(string $abstract)
+    public function get(string $abstract): mixed
     {
         if (!isset($this->services[$abstract])) {
             throw new \InvalidArgumentException("Service {$abstract} not found");

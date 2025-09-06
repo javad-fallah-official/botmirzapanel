@@ -160,7 +160,7 @@ class LegacyUserServiceAdapter
      * @return mixed Method result
      * @throws \BadMethodCallException When method does not exist
      */
-    public function __call(string $method, array $arguments)
+    public function __call(string $method, array $arguments): mixed
     {
         if (method_exists($this->legacyService, $method)) {
             return $this->legacyService->$method(...$arguments);

@@ -204,7 +204,7 @@ class SubscriptionFeature
      * @return mixed Validated value
      * @throws \InvalidArgumentException When value is invalid for the type
      */
-    private function validateValue($value, string $type)
+    private function validateValue($value, string $type): mixed
     {
         switch ($type) {
             case 'boolean':
@@ -261,7 +261,7 @@ class SubscriptionFeature
      * 
      * @return mixed Feature value
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
