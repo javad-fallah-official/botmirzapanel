@@ -12,7 +12,7 @@ final class Username
 {
     private string $value;
 
-    public function __construct()
+    public function __construct(string $value)
     {
         $this->validate($value);
         $this->value = $value;

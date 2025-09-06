@@ -11,7 +11,7 @@ class UserId
 {
     private string $value;
 
-    public function __construct()
+    public function __construct(string $id)
     {
         $this->validate($id);
         $this->value = $id;

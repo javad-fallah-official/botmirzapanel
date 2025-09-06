@@ -15,7 +15,7 @@ class MigrationRunner
     private DatabaseManager $db;
     private array $migrations;
     
-    public function __construct()
+    public function __construct(DatabaseManager $db)
     {
         $this->db = $db;
         $this->migrations = [

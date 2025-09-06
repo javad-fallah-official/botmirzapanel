@@ -26,7 +26,7 @@ class CommandHandler
     private ServiceContainer $container;
     private TelegramServiceInterface $telegram;
 
-    public function __construct()
+    public function __construct(ServiceContainer $container, TelegramServiceInterface $telegram)
     {
         $this->container = $container;
         $this->telegram = $telegram;

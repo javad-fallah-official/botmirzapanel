@@ -20,7 +20,7 @@ class MarzbanAdapter implements PanelAdapterInterface
     private string $baseUrl;
     private array $headers = [];
 
-    public function __construct()
+    public function __construct(array $config = [])
     {
         $this->config = $config;
         $this->baseUrl = rtrim($config['url'] ?? '', '/');

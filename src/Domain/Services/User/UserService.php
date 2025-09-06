@@ -9,6 +9,7 @@ use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
+use BotMirzaPanel\Domain\Services\ValidationService;
 
 /**
  * UserService
@@ -17,7 +18,11 @@ use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
  */
 class UserService
 {
-    public function __construct() {}
+    private ValidationService $validationService;
+    
+    public function __construct(ValidationService $validationService) {
+        $this->validationService = $validationService;
+    }
 
     /**
      * Create a new user with validation and security checks
@@ -63,14 +68,15 @@ class UserService
         }
         
         // Create user
+        $usernameVO = $username ? Username::fromString($username) : Username::fromString('user_' . uniqid());
         $user = User::create(
             UserId::generate(),
-            $telegramId,
-            $username,
-            $firstName,
-            $lastName,
+            $usernameVO,
             $emailVO,
-            $phoneVO
+            $phoneVO,
+            $telegramId,
+            $firstName,
+            $lastName
         );
         
         return $user;

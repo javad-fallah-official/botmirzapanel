@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BotMirzaPanel\Domain\Events;
 
-use BotMirzaPanel\Domain\ValueObjects\Email;
+use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Money;
 
 /**

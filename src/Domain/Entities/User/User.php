@@ -7,9 +7,10 @@ use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\User\UserStatus;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
-use BotMirzaPanel\Domain\Events\UserRegistered;
-use BotMirzaPanel\Domain\Events\UserActivated;
-use BotMirzaPanel\Domain\Events\UserDeactivated;
+use BotMirzaPanel\Domain\Events\UserCreated;
+use BotMirzaPanel\Domain\Events\UserStatusChanged;
+use BotMirzaPanel\Domain\Entities\User\UserProfile;
+use BotMirzaPanel\Domain\Entities\User\UserPreferences;
 use DateTime;
 
 /**
@@ -63,7 +64,15 @@ class User
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         
-        $this->addDomainEvent(new UserRegistered($this->id, $this->username, $this->email));
+        $this->addDomainEvent(UserCreated::create(
+            (string)$this->id,
+            (string)$this->username,
+            $this->firstName ?? '',
+            $this->lastName ?? '',
+            $this->email,
+            $this->phoneNumber ? (string)$this->phoneNumber : null,
+            $this->referredBy ? (string)$this->referredBy : null
+        ));
     }
 
     public static function create(
@@ -99,7 +108,12 @@ class User
         $this->status = UserStatus::active();
         $this->updatedAt = new DateTime();
         
-        $this->addDomainEvent(new UserActivated($this->id));
+        $this->addDomainEvent(UserStatusChanged::create(
+            (string)$this->id,
+            'pending',
+            'active',
+            'User activated'
+        ));
     }
 
     public function deactivate(): void
@@ -111,7 +125,12 @@ class User
         $this->status = UserStatus::inactive();
         $this->updatedAt = new DateTime();
         
-        $this->addDomainEvent(new UserDeactivated($this->id));
+        $this->addDomainEvent(UserStatusChanged::create(
+            (string)$this->id,
+            'active',
+            'inactive',
+            'User deactivated'
+        ));
     }
 
     public function updateProfile(UserProfile $profile): void
