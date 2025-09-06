@@ -23,7 +23,7 @@ class Money
         'RUB' => 2,
     ];
 
-    public function __construct(float|int $amount, string $currency = 'USD'): void
+    public function __construct()
     {
         $this->currency = strtoupper($currency);
         $precision = self::$currencyPrecision[$this->currency] ?? 2;

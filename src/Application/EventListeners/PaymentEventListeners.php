@@ -20,7 +20,7 @@ class PaymentEventListeners
 {
     private LoggerInterface $logger;
     
-    public function __construct(?LoggerInterface $logger = null): void
+    public function __construct()
     {
         $this->logger = $logger ?? new NullLogger();
     }

@@ -15,7 +15,7 @@ class MigrateCommand
     private DatabaseManager $db;
     private MigrationRunner $migrationRunner;
     
-    public function __construct(DatabaseManager $db): void
+    public function __construct()
     {
         $this->db = $db;
         $this->migrationRunner = new MigrationRunner($db);

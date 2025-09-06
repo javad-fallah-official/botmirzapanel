@@ -20,7 +20,7 @@ class PaymentService
     private array $gateways = [];
     private array $gatewaySettings = [];
 
-    public function __construct(ConfigManager $config, DatabaseManager $db): void
+    public function __construct()
     {
         $this->config = $config;
         $this->db = $db;

@@ -17,10 +17,7 @@ use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
  */
 class UserService
 {
-    public function __construct(
-        private UserValidationService $validationService,
-        private UserSecurityService $securityService
-    ): void {}
+    public function __construct() {}
 
     /**
      * Create a new user with validation and security checks

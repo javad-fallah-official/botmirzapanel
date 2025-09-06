@@ -14,7 +14,7 @@ class TelegramId extends ValueObject
 {
     private int $value;
 
-    public function __construct(int $value): void
+    public function __construct()
     {
         $this->validate($value);
         $this->value = $value;

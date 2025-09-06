@@ -24,7 +24,7 @@ class PanelService
     private array $adapters = [];
     private array $panelConfigs = [];
 
-    public function __construct(ConfigManager $config, DatabaseManager $db): void
+    public function __construct()
     {
         $this->config = $config;
         $this->db = $db;

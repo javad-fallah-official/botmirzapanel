@@ -20,7 +20,7 @@ class CallbackHandler
     private ServiceContainer $container;
     private TelegramServiceInterface $telegram;
 
-    public function __construct(ServiceContainer $container, TelegramServiceInterface $telegram): void
+    public function __construct()
     {
         $this->container = $container;
         $this->telegram = $telegram;

@@ -19,7 +19,7 @@ class DatabaseManager
     private ConfigManager $config;
     private array $repositories = [];
 
-    public function __construct(ConfigManager $config): void
+    public function __construct()
     {
         $this->config = $config;
         $this->initializeConnections();

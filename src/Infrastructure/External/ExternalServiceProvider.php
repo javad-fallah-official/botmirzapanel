@@ -24,7 +24,7 @@ class ExternalServiceProvider
 {
     private ServiceContainer $container;
 
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
     }
@@ -134,7 +134,7 @@ class PaymentGatewayFactory
         'nowpayments' => 'payment.gateway.nowpayments'
     ];
 
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
     }
@@ -169,7 +169,7 @@ class PanelAdapterFactory
         'marzban' => 'panel.adapter.marzban'
     ];
 
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
     }

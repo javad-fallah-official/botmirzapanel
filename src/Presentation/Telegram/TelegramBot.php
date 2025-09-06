@@ -23,7 +23,7 @@ class TelegramBot
     private CallbackHandler $callbackHandler;
     private MessageHandler $messageHandler;
 
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
         $this->telegram = $container->get(TelegramServiceInterface::class);

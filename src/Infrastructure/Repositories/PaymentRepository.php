@@ -17,7 +17,7 @@ use BotMirzaPanel\Domain\ValueObjects\Money;
  */
 class PaymentRepository extends BaseRepository implements PaymentRepositoryInterface
 {
-    public function __construct(DatabaseManager $db): void
+    public function __construct()
     {
         parent::__construct($db, 'Payment_report');
         $this->fillable = [

@@ -11,7 +11,7 @@ class SubscriptionId
 {
     private string $value;
 
-    public function __construct(string $id): void
+    public function __construct()
     {
         $this->validate($id);
         $this->value = $id;

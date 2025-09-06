@@ -22,7 +22,7 @@ class Money
         'LYD' => 3, 'TND' => 3,
     ];
 
-    public function __construct(int $amount, string $currency): void
+    public function __construct()
     {
         $this->validateCurrency($currency);
         $this->amount = $amount;

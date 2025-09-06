@@ -22,7 +22,7 @@ class ConsoleApplication
     private ServiceContainer $container;
     private array $commands = [];
     
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
         $this->registerCommands();

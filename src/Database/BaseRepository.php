@@ -13,7 +13,7 @@ class BaseRepository
     protected string $primaryKey = 'id';
     protected array $fillable = [];
 
-    public function __construct(DatabaseManager $db, string $table = null): void
+    public function __construct()
     {
         $this->db = $db;
         $this->table = $table ?? $this->getTableName();

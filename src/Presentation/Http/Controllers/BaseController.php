@@ -17,7 +17,7 @@ abstract class BaseController
 {
     protected ServiceContainer $container;
 
-    public function __construct(ServiceContainer $container): void
+    public function __construct()
     {
         $this->container = $container;
     }

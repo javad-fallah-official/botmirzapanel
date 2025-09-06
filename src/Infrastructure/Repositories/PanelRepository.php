@@ -30,7 +30,7 @@ class PanelRepository extends BaseRepository implements PanelRepositoryInterface
         'capabilities', 'statistics', 'created_at', 'updated_at'
     ];
     
-    public function __construct(DatabaseManager $db): void
+    public function __construct(DatabaseManager $db)
     {
         parent::__construct($db, 'panels');
     }

@@ -14,7 +14,7 @@ class GetUserByTelegramIdQuery implements QueryInterface
 {
     private TelegramId $telegramId;
 
-    public function __construct(TelegramId $telegramId): void
+    public function __construct()
     {
         $this->telegramId = $telegramId;
     }

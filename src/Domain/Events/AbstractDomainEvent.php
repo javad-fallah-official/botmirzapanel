@@ -17,7 +17,7 @@ abstract class AbstractDomainEvent implements DomainEvent
     protected string $aggregateId;
     protected array $payload;
 
-    public function __construct(int $version = 1): void
+    public function __construct()
     {
         $this->eventId = $this->generateEventId();
         $this->occurredAt = new DateTime();

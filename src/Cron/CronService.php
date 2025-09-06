@@ -20,13 +20,7 @@ class CronService
     private TelegramBot $telegram;
     private array $jobs = [];
 
-    public function __construct(
-        ConfigManager $config,
-        DatabaseManager $db,
-        UserService $userService,
-        PanelService $panelService,
-        TelegramBot $telegram
-    ): void {
+    public function __construct() {
         $this->config = $config;
         $this->db = $db;
         $this->userService = $userService;

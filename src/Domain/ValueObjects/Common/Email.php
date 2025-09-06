@@ -11,7 +11,7 @@ class Email
 {
     private string $value;
 
-    public function __construct(string $email): void
+    public function __construct()
     {
         $this->validate($email);
         $this->value = strtolower(trim($email));

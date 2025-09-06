@@ -11,7 +11,7 @@ use Exception;
  */
 class EntityNotFoundException extends Exception
 {
-    public function __construct(string $message = 'Entity not found', int $code = 404, ?Exception $previous = null): void
+    public function __construct()
     {
         parent::__construct($message, $code, $previous);
     }

@@ -67,7 +67,7 @@ class ServiceContainer
     private ConfigManager $config;
     private DatabaseManager $db;
     
-    public function __construct(ConfigManager $config, DatabaseManager $db): void
+    public function __construct()
     {
         $this->config = $config;
         $this->db = $db;

@@ -12,7 +12,7 @@ class DateTimeRange
     private \DateTimeImmutable $start;
     private \DateTimeImmutable $end;
 
-    public function __construct(\DateTimeImmutable $start, \DateTimeImmutable $end): void
+    public function __construct()
     {
         $this->validate($start, $end);
         $this->start = $start;

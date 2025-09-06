@@ -11,7 +11,7 @@ use Exception;
  */
 class SecurityException extends Exception
 {
-    public function __construct(string $message = 'Security operation failed', int $code = 0, ?Exception $previous = null): void
+    public function __construct()
     {
         parent::__construct($message, $code, $previous);
     }
