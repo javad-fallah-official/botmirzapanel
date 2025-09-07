@@ -17,6 +17,7 @@ use BotMirzaPanel\Domain\ValueObjects\User\UserId;
 use BotMirzaPanel\Domain\ValueObjects\Common\Money;
 use BotMirzaPanel\Domain\ValueObjects\Common\Currency;
 use BotMirzaPanel\Infrastructure\External\Payment\PaymentGatewayInterface;
+use BotMirzaPanel\Infrastructure\Container\ServiceContainer;
 
 /**
  * Payment Controller
@@ -25,6 +26,11 @@ use BotMirzaPanel\Infrastructure\External\Payment\PaymentGatewayInterface;
  */
 class PaymentController extends BaseController
 {
+    public function __construct(?ServiceContainer $container = null)
+    {
+        parent::__construct($container);
+    }
+
     /**
      * Get all payments
      */
@@ -198,29 +204,9 @@ class PaymentController extends BaseController
             $this->requirePermission('payments.view');
             
             $factory = $this->container->get('payment.gateway.factory');
-            $availableGateways = $factory->getAvailableGateways();
+            $gateways = $factory->getAvailableGateways();
             
-            $gateways = [];
-            foreach ($availableGateways as $gatewayName) {
-                try {
-                    $gateway = $factory->create($gatewayName);
-                    $gateways[] = [
-                        'name' => $gatewayName,
-                        'display_name' => $gateway->getDisplayName(),
-                        'description' => $gateway->getDescription(),
-                        'supported_currencies' => $gateway->getSupportedCurrencies(),
-                        'min_amount' => $gateway->getMinAmount(),
-                        'max_amount' => $gateway->getMaxAmount(),
-                        'enabled' => $gateway->isEnabled(),
-                        'configured' => $gateway->isConfigured()
-                    ];
-                } catch (\Exception $e) {
-                    // Skip gateway if it can't be instantiated
-                    continue;
-                }
-            }
-            
-            return $this->success(['gateways' => $gateways]);
+            return $this->success(['gateways' => array_map(fn(PaymentGatewayInterface $g) => $g->getName(), $gateways)]);
             
         } catch (\Throwable $e) {
             return $this->handleException($e);
@@ -228,49 +214,14 @@ class PaymentController extends BaseController
     }
 
     /**
-     * Test payment gateway configuration
-     */
-    public function testGateway(string $gateway): array
-    {
-        try {
-            $this->requireAuth();
-            $this->requirePermission('payments.manage');
-            
-            $factory = $this->container->get('payment.gateway.factory');
-            $gatewayInstance = $factory->create($gateway);
-            
-            $testResult = $gatewayInstance->testConnection();
-            
-            return $this->success([
-                'gateway' => $gateway,
-                'test_result' => $testResult
-            ]);
-            
-        } catch (\Throwable $e) {
-            return $this->handleException($e);
-        }
-    }
-
-    /**
-     * Format payment data for API response
+     * Format payment for API response
      */
     private function formatPayment(mixed $payment): array
     {
-        return [
-            'id' => $payment->getId()->getValue(),
-            'user_id' => $payment->getUserId()->getValue(),
-            'amount' => [
-                'amount' => $payment->getAmount()->getAmount(),
-                'currency' => $payment->getAmount()->getCurrency()->getCode()
-            ],
-            'status' => $payment->getStatus()->getValue(),
-            'gateway' => $payment->getGateway(),
-            'gateway_payment_id' => $payment->getGatewayPaymentId(),
-            'description' => $payment->getDescription(),
-            'metadata' => $payment->getMetadata(),
-            'created_at' => $payment->getCreatedAt()->format('c'),
-            'updated_at' => $payment->getUpdatedAt()->format('c'),
-            'completed_at' => $payment->getCompletedAt()?->format('c')
+        // Placeholder formatting; adjust based on actual payment entity/DTO
+        return is_array($payment) ? $payment : [
+            'id' => method_exists($payment, 'getId') ? $payment->getId()->getValue() : null,
+            'status' => method_exists($payment, 'getStatus') ? $payment->getStatus()->getValue() : null
         ];
     }
 }

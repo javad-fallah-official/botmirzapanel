@@ -15,11 +15,22 @@ use BotMirzaPanel\Shared\Exceptions\DomainException;
  */
 abstract class BaseController
 {
-    protected ServiceContainer $container;
+    protected ?ServiceContainer $container = null;
+    protected array $routeParams = [];
 
-    public function __construct(ServiceContainer $container)
+    public function __construct(?ServiceContainer $container = null)
     {
         $this->container = $container;
+    }
+
+    public function setContainer(ServiceContainer $container): void
+    {
+        $this->container = $container;
+    }
+
+    public function setRouteParams(array $params): void
+    {
+        $this->routeParams = $params;
     }
 
     /**

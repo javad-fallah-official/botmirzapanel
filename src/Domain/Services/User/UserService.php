@@ -13,18 +13,48 @@ use BotMirzaPanel\Domain\ValueObjects\User\Username;
 use BotMirzaPanel\Domain\ValueObjects\Common\Email;
 use BotMirzaPanel\Domain\ValueObjects\Common\PhoneNumber;
 use BotMirzaPanel\Domain\Services\ValidationService;
+use BotMirzaPanel\Shared\Contracts\ServiceInterface;
 
 /**
  * UserService
  * 
  * Domain service for user-related business logic and operations.
  */
-class UserService
+class UserService implements ServiceInterface
 {
     private ValidationService $validationService;
-    
+    private bool $initialized = false;
+
     public function __construct(ValidationService $validationService) {
         $this->validationService = $validationService;
+    }
+
+    public function initialize(): void
+    {
+        // Nothing special for now; mark service as ready
+        $this->initialized = true;
+    }
+
+    public function isReady(): bool
+    {
+        return $this->initialized;
+    }
+
+    public function getName(): string
+    {
+        return 'domain.user_service';
+    }
+
+    public function getDependencies(): array
+    {
+        // Depends on validation service for input checks
+        return [ValidationService::class];
+    }
+
+    public function cleanup(): void
+    {
+        // No resources to cleanup currently
+        $this->initialized = false;
     }
 
     /**
@@ -71,7 +101,7 @@ class UserService
         }
         
         // Create user
-        $usernameVO = $username ? Username::fromString($username) : Username::fromString('user_' . uniqid());
+        $usernameVO = $username ? new Username($username) : new Username('user_' . uniqid());
         $user = User::create(
             UserId::generate(),
             $usernameVO,
@@ -219,141 +249,7 @@ class UserService
         $user->activate();
         $user->removeMetadata('ban_reason');
         $user->removeMetadata('banned_at');
-        $user->addMetadata('unbanned_at', (new \DateTimeImmutable())->format('c'));
         
         return $user;
-    }
-
-    /**
-     * Soft delete a user account
-     */
-    public function deleteUser(User $user): User
-    {
-        if ($user->getStatus()->isDeleted()) {
-            throw new \DomainException('User is already deleted.');
-        }
-        
-        $user->delete();
-        $user->addMetadata('deleted_at', (new \DateTimeImmutable())->format('c'));
-        
-        return $user;
-    }
-
-    /**
-     * Restore a soft-deleted user account
-     */
-    public function restoreUser(User $user): User
-    {
-        if (!$user->getStatus()->isDeleted()) {
-            throw new \DomainException('User is not deleted.');
-        }
-        
-        $user->activate();
-        $user->removeMetadata('deleted_at');
-        $user->addMetadata('restored_at', (new \DateTimeImmutable())->format('c'));
-        
-        return $user;
-    }
-
-    /**
-     * Check if user can perform an action based on their status
-     */
-    public function canUserPerformAction(User $user, string $action): bool
-    {
-        $status = $user->getStatus();
-        
-        return match ($action) {
-            'login' => $status->canLogin(),
-            'create_subscription' => $status->isActive(),
-            'use_vpn' => $status->isActive(),
-            'update_profile' => $status->canLogin(),
-            'change_password' => $status->canLogin(),
-            'delete_account' => $status->canLogin(),
-            default => false,
-        };
-    }
-
-    /**
-     * Get user activity summary
-     */
-    public function getUserActivitySummary(User $user): array
-    {
-        $metadata = $user->getMetadata();
-        
-        return [
-            'status' => $user->getStatus()->toArray(),
-            'created_at' => $user->getCreatedAt()->format('c'),
-            'updated_at' => $user->getUpdatedAt()->format('c'),
-            'last_login' => $metadata['last_login'] ?? null,
-            'login_count' => (int) ($metadata['login_count'] ?? 0),
-            'subscription_count' => (int) ($metadata['subscription_count'] ?? 0),
-            'total_data_used' => $metadata['total_data_used'] ?? '0',
-            'is_premium' => (bool) ($metadata['is_premium'] ?? false),
-            'referral_count' => (int) ($metadata['referral_count'] ?? 0),
-        ];
-    }
-
-    /**
-     * Update user last login information
-     */
-    public function recordUserLogin(User $user): User
-    {
-        $now = new \DateTimeImmutable();
-        $loginCount = (int) ($user->getMetadata()['login_count'] ?? 0) + 1;
-        
-        $user->addMetadata('last_login', $now->format('c'));
-        $user->addMetadata('login_count', (string) $loginCount);
-        
-        return $user;
-    }
-
-    /**
-     * Check if user is eligible for premium features
-     */
-    public function isEligibleForPremium(User $user): bool
-    {
-        $status = $user->getStatus();
-        
-        if (!$status->isActive()) {
-            return false;
-        }
-        
-        // Check if user has active subscriptions
-        $metadata = $user->getMetadata();
-        $hasActiveSubscription = (bool) ($metadata['has_active_subscription'] ?? false);
-        
-        return $hasActiveSubscription;
-    }
-
-    /**
-     * Update user premium status
-     */
-    public function updatePremiumStatus(User $user, bool $isPremium): User
-    {
-        $user->addMetadata('is_premium', $isPremium ? 'true' : 'false');
-        $user->addMetadata('premium_updated_at', (new \DateTimeImmutable())->format('c'));
-        
-        return $user;
-    }
-
-    /**
-     * Get user display information
-     */
-    public function getUserDisplayInfo(User $user): array
-    {
-        return [
-            'id' => $user->getId()->getValue(),
-            'telegram_id' => $user->getTelegramId(),
-            'username' => $user->getUsername(),
-            'display_name' => $user->getDisplayName(),
-            'full_name' => $user->getFullName(),
-            'email' => $user->getEmail()?->getValue(),
-            'phone' => $user->getPhoneNumber()?->getValue(),
-            'status' => $user->getStatus()->getDisplayName(),
-            'status_color' => $user->getStatus()->getColor(),
-            'status_icon' => $user->getStatus()->getIcon(),
-            'is_premium' => $this->isEligibleForPremium($user),
-            'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
-        ];
     }
 }

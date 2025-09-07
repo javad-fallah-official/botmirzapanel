@@ -9,16 +9,18 @@ namespace BotMirzaPanel\User;
 
 use BotMirzaPanel\Config\ConfigManager;
 use BotMirzaPanel\Database\DatabaseManager;
+use BotMirzaPanel\Shared\Contracts\ServiceInterface;
 
 /**
  * User service that manages all user-related operations
  * Handles user management, authentication, and business logic
  */
-class UserService
+class UserService implements ServiceInterface
 {
     private ConfigManager $config;
     private DatabaseManager $db;
     private array $rateLimitCache = [];
+    private bool $initialized = false;
 
     public function __construct(ConfigManager $config, DatabaseManager $db)
     {
@@ -498,5 +500,49 @@ class UserService
         }
         // Normalize payload to expected shape
         return array_map(fn($id) => ['user_id' => (int)$id], $admins);
+    }
+
+    /**
+     * Service lifecycle: initialize resources
+     */
+    public function initialize(): void
+    {
+        // Lazy DB connections are handled by DatabaseManager; mark service as initialized
+        $this->initialized = true;
+    }
+
+    /**
+     * Service lifecycle: readiness check
+     */
+    public function isReady(): bool
+    {
+        return $this->initialized && isset($this->config) && isset($this->db);
+    }
+
+    /**
+     * Service lifecycle: service name
+     */
+    public function getName(): string
+    {
+        return 'user_service';
+    }
+
+    /**
+     * Service lifecycle: dependencies
+     * @return array<int, class-string>
+     */
+    public function getDependencies(): array
+    {
+        return [ConfigManager::class, DatabaseManager::class];
+    }
+
+    /**
+     * Service lifecycle: cleanup resources
+     */
+    public function cleanup(): void
+    {
+        // Clear in-memory caches
+        $this->rateLimitCache = [];
+        $this->initialized = false;
     }
 }
