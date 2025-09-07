@@ -20,12 +20,12 @@ use BotMirzaPanel\Shared\Contracts\ContainerInterface;
 class Application
 {
     private ConfigManager $config;
-    private DatabaseManager $database;
-    private TelegramBot $telegram;
-    private PaymentService $payment;
-    private PanelService $panel;
-    private UserService $user;
-    private CronService $cron;
+    private ?DatabaseManager $database = null;
+    private ?TelegramBot $telegram = null;
+    private ?PaymentService $payment = null;
+    private ?PanelService $panel = null;
+    private ?UserService $user = null;
+    private ?CronService $cron = null;
     private array $services = [];
     // Store reference to container for lazy/fallback resolution
     private ContainerInterface $container;
@@ -41,24 +41,12 @@ class Application
      */
     private function initializeServices(): void
     {
-        // Resolve from container instead of manual instantiation
+        // Resolve only lightweight services eagerly
         $this->config = $this->container->get('config');
-        $this->database = $this->container->get('database');
-        $this->telegram = $this->container->get('telegram');
-        $this->payment = $this->container->get('payment');
-        $this->panel = $this->container->get('panel');
-        $this->user = $this->container->get('user');
-        $this->cron = $this->container->get('cron');
 
-        // Register services map for easy access
+        // Defer heavy services to first use via getService
         $this->services = [
             'config' => $this->config,
-            'database' => $this->database,
-            'telegram' => $this->telegram,
-            'payment' => $this->payment,
-            'panel' => $this->panel,
-            'user' => $this->user,
-            'cron' => $this->cron,
         ];
     }
 
@@ -71,8 +59,10 @@ class Application
             return $this->services[$name];
         }
 
-        // Fallback to container lookup for lazily registered services
-        return $this->container->get($name);
+        // Lazy resolve and cache
+        $service = $this->container->get($name);
+        $this->services[$name] = $service;
+        return $service;
     }
 
     /**
@@ -81,12 +71,16 @@ class Application
     public function handleWebhook(array $update): void
     {
         try {
-            $this->telegram->processUpdate($update, $this->services);
+            /** @var TelegramBot $telegram */
+            $telegram = $this->getService('telegram');
+            $telegram->processUpdate($update, $this->services);
         } catch (\Exception $e) {
             error_log("Webhook error: " . $e->getMessage());
             // Log to admin if configured
             if ($this->config->get('admin.error_reporting', false)) {
-                $this->telegram->sendMessage(
+                /** @var TelegramBot $telegram */
+                $telegram = $this->getService('telegram');
+                $telegram->sendMessage(
                     $this->config->get('admin.id'),
                     "Error: " . $e->getMessage()
                 );
@@ -99,7 +93,9 @@ class Application
      */
     public function runCron(?string $jobName = null): void
     {
-        $this->cron->run($jobName);
+        /** @var CronService $cron */
+        $cron = $this->getService('cron');
+        $cron->run($jobName);
     }
 
     /**
@@ -107,7 +103,9 @@ class Application
      */
     public function initializeDatabase(): void
     {
-        $this->database->initializeTables();
+        /** @var DatabaseManager $db */
+        $db = $this->getService('database');
+        $db->initializeTables();
     }
 
     /**

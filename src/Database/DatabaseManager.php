@@ -17,15 +17,25 @@ use PDOException;
  */
 class DatabaseManager
 {
-    private PDO $pdo;
-    private \mysqli $mysqli;
+    private ?PDO $pdo = null;
+    private ?\mysqli $mysqli = null;
     private ConfigManager $config;
     private array $repositories = [];
 
-    public function __construct()
+    public function __construct(ConfigManager $config)
     {
         $this->config = $config;
-        $this->initializeConnections();
+        // Connections are lazily initialized on first use
+    }
+
+    /**
+     * Lazily ensure database connections (PDO and mysqli) are initialized
+     */
+    private function ensureConnections(): void
+    {
+        if ($this->pdo === null || $this->mysqli === null) {
+            $this->initializeConnections();
+        }
     }
 
     /**
@@ -65,6 +75,7 @@ class DatabaseManager
      */
     public function getPdo(): PDO
     {
+        $this->ensureConnections();
         return $this->pdo;
     }
 
@@ -73,6 +84,7 @@ class DatabaseManager
      */
     public function getMysqli(): \mysqli
     {
+        $this->ensureConnections();
         return $this->mysqli;
     }
 
@@ -98,6 +110,7 @@ class DatabaseManager
     public function execute(string $sql, array $params = []): \PDOStatement
     {
         try {
+            $this->ensureConnections();
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
             return $stmt;
@@ -130,6 +143,7 @@ class DatabaseManager
      */
     public function insert(string $table, array $data): int
     {
+        $this->ensureConnections();
         $columns = implode(', ', array_keys($data));
         $placeholders = ':' . implode(', :', array_keys($data));
         
@@ -190,6 +204,7 @@ class DatabaseManager
      */
     public function beginTransaction(): void
     {
+        $this->ensureConnections();
         $this->pdo->beginTransaction();
     }
 
@@ -198,6 +213,7 @@ class DatabaseManager
      */
     public function commit(): void
     {
+        $this->ensureConnections();
         $this->pdo->commit();
     }
 
@@ -206,6 +222,7 @@ class DatabaseManager
      */
     public function rollback(): void
     {
+        $this->ensureConnections();
         $this->pdo->rollBack();
     }
 
@@ -214,6 +231,7 @@ class DatabaseManager
      */
     public function initializeTables(): void
     {
+        $this->ensureConnections();
         // Load and execute table creation scripts
         $tableScript = dirname(__DIR__, 2) . '/table.php';
         if (file_exists($tableScript)) {

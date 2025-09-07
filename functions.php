@@ -26,11 +26,6 @@ function update($table, $field, $newValue, $whereField = null, $whereValue = nul
 {
     // Redirect to secure function
     return secure_update($table, $field, $newValue, $whereField, $whereValue);
-} else {
-        $sql = "UPDATE $table SET $field = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$newValue]);
-    }
 }
 function step($step, $from_id)
 {
@@ -44,29 +39,6 @@ function select($table, $field, $whereField = null, $whereValue = null, $type = 
 {
     // Redirect to secure function
     return secure_select($table, $field, $whereField, $whereValue, $type);
-}
-
-    try {
-        $stmt = $pdo->prepare($query);
-
-        if ($whereField !== null) {
-            $stmt->bindParam(':whereValue', $whereValue, PDO::PARAM_STR);
-        }
-
-        $stmt->execute();
-
-        if ($type == "count") {
-            return $stmt->rowCount();
-        } elseif ($type == "FETCH_COLUMN") {
-            return $stmt->fetchAll(PDO::FETCH_COLUMN);
-        } elseif ($type == "fetchAll") {
-            return $stmt->fetchAll();
-        } else {
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-    } catch (PDOException $e) {
-        die("Query failed: " . $e->getMessage());
-    }
 }
 
 function generateUUID()

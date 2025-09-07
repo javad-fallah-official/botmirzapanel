@@ -71,12 +71,12 @@ use BotMirzaPanel\Infrastructure\Providers\DomainServiceProvider;
 use BotMirzaPanel\Infrastructure\Providers\PerformanceServiceProvider;
 use BotMirzaPanel\Database\DatabaseManager;
 use BotMirzaPanel\Config\ConfigManager;
-use BotMirzaPanel\Infrastructure\Container\ServiceContainer;
+// use BotMirzaPanel\Infrastructure\Container\ServiceContainer;
 use BotMirzaPanel\Telegram\TelegramBot;
 use BotMirzaPanel\Payment\PaymentService;
 use BotMirzaPanel\Panel\PanelService;
 use BotMirzaPanel\User\UserService;
-use BotMirzaPanel\Infrastructure\Adapters\LegacyUserServiceAdapter;
+// use BotMirzaPanel\Infrastructure\Adapters\LegacyUserServiceAdapter;
 use BotMirzaPanel\Cron\CronService;
 
 /**
@@ -87,21 +87,23 @@ if (!file_exists($configFile)) {
     throw new Exception('Configuration file not found: ' . $configFile);
 }
 
-$configData = require $configFile;
-$configManager = new ConfigManager($configData);
+// Config and DB will be resolved via container providers; avoid manual instantiation here.
+// $configData = require $configFile;
+// $configManager = new ConfigManager($configData);
 
-$databaseManager = new DatabaseManager(
-    $configManager->get('database.host', 'localhost'),
-    $configManager->get('database.username', 'root'),
-    $configManager->get('database.password', ''),
-    $configManager->get('database.database', 'botmirzapanel'),
-    $configManager->get('database.port', 3306)
-);
+// $databaseManager = new DatabaseManager(
+//     $configManager->get('database.host', 'localhost'),
+//     $configManager->get('database.username', 'root'),
+//     $configManager->get('database.password', ''),
+//     $configManager->get('database.database', 'botmirzapanel'),
+//     $configManager->get('database.port', 3306)
+// );
 
 /**
  * Initialize the new service container for domain-driven architecture
  */
-$serviceContainer = new ServiceContainer($configManager, $databaseManager);
+// Legacy ServiceContainer usage removed; using unified Container with providers
+// $serviceContainer = new ServiceContainer($configManager, $databaseManager);
 
 /**
  * Initialize the legacy DI container for backward compatibility
@@ -160,32 +162,32 @@ function config(string $key = null, $default = null): mixed
 
 function db(): DatabaseManager
 {
-    global $serviceContainer;
-    return $serviceContainer->get(DatabaseManager::class);
+    global $container;
+    return $container->get('database');
 }
 
 function telegram(): TelegramBot
 {
-    global $serviceContainer;
-    return $serviceContainer->getTelegramBot();
+    global $container;
+    return $container->get('telegram');
 }
 
-function userService(): LegacyUserServiceAdapter
+function userService(): UserService
 {
-    global $serviceContainer;
-    return $serviceContainer->getUserService();
+    global $container;
+    return $container->get('user');
 }
 
 function panelService(): PanelService
 {
-    global $serviceContainer;
-    return $serviceContainer->getPanelService();
+    global $container;
+    return $container->get('panel');
 }
 
 function paymentService(): PaymentService
 {
-    global $serviceContainer;
-    return $serviceContainer->getPaymentService();
+    global $container;
+    return $container->get('payment');
 }
 
 function cronService(): CronService
@@ -272,7 +274,7 @@ try {
     $config = $container->get('config');
     
     // Test database connection
-    $database = $container->get('database');
+    // $database = $container->get('database');
     
     // Initialize application
     $app = $container->get('app');
@@ -294,12 +296,12 @@ try {
  */
 $GLOBALS['container'] = $container;
 $GLOBALS['config'] = $container->get('config');
-$GLOBALS['database'] = $container->get('database');
-$GLOBALS['telegram'] = $container->get('telegram');
-$GLOBALS['userService'] = $container->get('user');
-$GLOBALS['panelService'] = $container->get('panel');
-$GLOBALS['paymentService'] = $container->get('payment');
-$GLOBALS['cronService'] = $container->get('cron');
+// $GLOBALS['database'] = $container->get('database');
+// $GLOBALS['telegram'] = $container->get('telegram');
+// $GLOBALS['userService'] = $container->get('user');
+// $GLOBALS['panelService'] = $container->get('panel');
+// $GLOBALS['paymentService'] = $container->get('payment');
+// $GLOBALS['cronService'] = $container->get('cron');
 $GLOBALS['app'] = $container->get('app');
 
 // Mark initialization as complete

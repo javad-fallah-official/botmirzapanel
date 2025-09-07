@@ -83,12 +83,26 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
 
     private function registerLogger(ContainerInterface $container): void
     {
-        // Bind PSR logger to NullLogger by default
+        // Bind PSR logger to NullLogger by default; if psr/log is unavailable, provide a no-op fallback
         $this->singleton(
             $container,
             LoggerInterface::class,
             function () {
-                return new NullLogger();
+                if (class_exists(NullLogger::class)) {
+                    return new NullLogger();
+                }
+                // Fallback no-op logger compatible enough for our usage
+                return new class {
+                    public function emergency($message, array $context = []): void {}
+                    public function alert($message, array $context = []): void {}
+                    public function critical($message, array $context = []): void {}
+                    public function error($message, array $context = []): void {}
+                    public function warning($message, array $context = []): void {}
+                    public function notice($message, array $context = []): void {}
+                    public function info($message, array $context = []): void {}
+                    public function debug($message, array $context = []): void {}
+                    public function log($level, $message, array $context = []): void {}
+                };
             }
         );
 
@@ -102,6 +116,13 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
         $container->register(
             Redis::class,
             function () use ($container) {
+                // If Redis extension isn't installed, return a stub object to avoid fatal errors
+                if (!class_exists(Redis::class)) {
+                    return new class {
+                        public function __call($name, $arguments) { return false; }
+                    };
+                }
+
                 $redis = new Redis();
 
                 // Attempt connection using config if available
@@ -178,9 +199,8 @@ class InfrastructureServiceProvider extends AbstractServiceProvider
 
     public function boot(ContainerInterface $container): void
     {
-        // Trigger initialization of core services if needed
-        $container->get(DatabaseManager::class);
-        $container->get(CacheService::class);
+        // Defer heavy services initialization to first use to avoid missing extensions in non-DB contexts
+        // Initialize only lightweight services
         $container->get(LoggerInterface::class);
     }
 }
